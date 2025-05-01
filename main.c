@@ -5,7 +5,7 @@
 volatile bool readSensors = false;
 
 ISR(WDT_vect) {
-    readSensorsPtr = true;
+    readSensors = true;
 }
 
 void watchdog() {
@@ -16,19 +16,24 @@ void watchdog() {
     sei();
 }
 
+void sleep_mode() {
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_enable();
+    sleep_cpu();
+    sleep_disable();
+}
+
 void setup() {
     pinMode(MOISTURE_SENSOR_A0, INPUT);
     Serial.begin(9600);
 }
 
 void loop() {
-    if (readSensorsPtr) {
+    if (readSensors) {
         uint16_t moisture = analogRead(MOISTURE_SENSOR_A0);
         Serial.println(moisture);
 
-        readSensorsPtr = false;
+        readSensors = false;
     }
-
-
-
+    sleep_mode();
 }
