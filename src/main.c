@@ -1,4 +1,5 @@
 #include <avr/sleep.h>
+#include <avr/wdt.h>
 
 #define MOISTURE_SENSOR_A0 A0
 
@@ -8,16 +9,20 @@ ISR(WDT_vect) {
     readSensors = true;
 }
 
-void watchdog() {
+void watchdogs() {
     cli();
-    // Set watchdog timer to 8 seconds
-    WDTCSR = (1 << WDCE) | (1 << WDE);
-    WDTCSR = (1 << WDIE) | (1 << WDP3);
+    MCUSR &= ~(1 << WDRF);
+    WDTCSR |= (1 << WDCE) | (1 << WDE);
+    WDTCSR = (1 << WDIE) | (1 << WDP3) | (1 << WDP0);
     sei();
 }
 
-void sleep_mode() {
-    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+void enterSleep() {
+    // Arduino disables USB when sleeping
+    // if using Serial, use flag : SLEEP_MODE_IDLE
+    // otherwise for deep sleep  : SLEEP_MODE_PWR_DOWN
+    set_sleep_mode(SLEEP_MODE_IDLE);
+
     sleep_enable();
     sleep_cpu();
     sleep_disable();
@@ -26,14 +31,14 @@ void sleep_mode() {
 void setup() {
     pinMode(MOISTURE_SENSOR_A0, INPUT);
     Serial.begin(9600);
+    watchdogs();
 }
 
 void loop() {
     if (readSensors) {
         uint16_t moisture = analogRead(MOISTURE_SENSOR_A0);
         Serial.println(moisture);
-
         readSensors = false;
     }
-    sleep_mode();
+    enterSleep();
 }
