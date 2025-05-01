@@ -1,0 +1,65 @@
+# === Arduino specific ===
+*.elf
+*.hex
+*.eep
+*.bin
+*.map
+*.d
+*.dep
+*.o
+*.a
+*.lst
+*.srec
+*.bak
+*.tmp
+*.swp
+*.swo
+*.log
+
+# Arduino build folders (varies by IDE/version)
+build/
+*.sketches/
+*.arduino/
+*.ino.cpp
+
+# Arduino libraries you might not want tracked
+libraries/
+
+# PlatformIO (if you ever use it)
+.pio/
+.vscode/
+
+# === OS and Editor specific ===
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# macOS metadata
+.Spotlight-V100
+.Trashes
+.fseventsd
+.VolumeIcon.icns
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Backup files
+*~
+*.orig
+*.bak
+
+# Logs
+*.log
