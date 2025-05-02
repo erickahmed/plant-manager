@@ -4,6 +4,9 @@
 #define MOISTURE_SENSOR_A0 A0
 
 volatile bool readSensors = false;
+uint32_t moistureReadingSum = 0;
+uint8_t moistureReadingCount = 0;
+const uint8_t SENSOR_READINGS = 3;
 
 ISR(WDT_vect) {
     readSensors = true;
@@ -36,8 +39,15 @@ void setup() {
 
 void loop() {
     if (readSensors) {
-        uint16_t moisture = analogRead(MOISTURE_SENSOR_A0);
-        Serial.println(moisture);
+            moistureReadingSum += analogRead(MOISTURE_SENSOR_A0);
+            moistureReadingCount++;
+
+            if (moistureReadingCount >= SENSOR_READINGS) {
+                Serial.println(moistureReadingSum / SENSOR_READINGS);
+                moistureReadingSum = 0;
+                moistureReadingCount = 0;
+            } else readSensors = true;
+        }
         readSensors = false;
     }
     enterSleep();
