@@ -1,11 +1,12 @@
+#include <stdint.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 
 #define MOISTURE_SENSOR_A0 A0
 
 volatile bool readSensors = false;
-uint32_t moistureReadingSum = 0;
-uint8_t moistureReadingCount = 0;
+int16_t moistureReadingSum = 0;
+int8_t moistureReadingCount = 0;
 const uint8_t SENSOR_READINGS = 3;
 
 ISR(WDT_vect) {
@@ -18,6 +19,20 @@ void watchdogs() {
     WDTCSR |= (1 << WDCE) | (1 << WDE);
     WDTCSR = (1 << WDIE) | (1 << WDP3) | (1 << WDP0);
     sei();
+}
+
+int16_t readMoisture() {
+    if (readSensors) {
+        moistureReadingSum += analogRead(MOISTURE_SENSOR_A0);
+        moistureReadingCount++;
+
+        if (moistureReadingCount >= SENSOR_READINGS) {
+            Serial.println(moistureReadingSum / SENSOR_READINGS);
+            moistureReadingSum = 0;
+            moistureReadingCount = 0;
+        } else readSensors = true;
+    }
+    readSensors = false;
 }
 
 void enterSleep() {
@@ -38,17 +53,6 @@ void setup() {
 }
 
 void loop() {
-    if (readSensors) {
-            moistureReadingSum += analogRead(MOISTURE_SENSOR_A0);
-            moistureReadingCount++;
-
-            if (moistureReadingCount >= SENSOR_READINGS) {
-                Serial.println(moistureReadingSum / SENSOR_READINGS);
-                moistureReadingSum = 0;
-                moistureReadingCount = 0;
-            } else readSensors = true;
-        }
-        readSensors = false;
-    }
+    int16_t moisture = readMoisture();
     enterSleep();
 }
