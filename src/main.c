@@ -30,10 +30,13 @@ void setup(void) {
 }
 
 void loop(void) {
-    triggerSensorRead();
-    int16_t result = readMoisture();
-    if (result != -1) {
-
+    if (readSensors) {
+        int16_t result = readMoisture();
+        if (result != -1) {
+            Serial.println(result);
+            readSensors = false;
+        }
     }
+
     enterSleep();
 }
