@@ -25,13 +25,12 @@ int16_t readMoisture(void) {
 
     if (moistureReadingCount >= SENSOR_READINGS) {
         int16_t avg = moistureReadingSum / SENSOR_READINGS;
-        Serial.println(avg);
+        //Serial.println(avg);
         moistureReadingSum = 0;
         moistureReadingCount = 0;
         readSensors = false;
         return avg;
-    }
+    } else readSensors = true;
 
-    readSensors = true;
     return -1;
 }
