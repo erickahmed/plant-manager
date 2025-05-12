@@ -1,41 +1,21 @@
 PROJECT = plant-manager
 
-# Flags
 MCU = atmega328p
 F_CPU = 16000000UL
+PROGRAMMER = arduino
+PORT ?= /dev/ttyACM0
 
 CC = avr-gcc
-OBJCOPY = avr-objcopy
-AVRDUDE = avrdude
+LD = avr-ld
+OC = avr-objcopy
+AD = avrdude
 CFLAGS = -Wall -Os -DF_CPU=$(F_CPU) -mmcu=$(MCU)
 
-PROGRAMMER = arduino
-PORT = /dev/ttyACM0
+SRCS = main.c moisture.cpp
+HDRS = moisture.h config.h
+OBJS = main.o moisture.o config.o
+EXEC = moisture
 
-SRC = main.c
-OBJ = $(SRC:.c=.o)
+TARGET = moisture.hex
 
-# Default target
-all: $(PROJECT).hex
-
-# Compiler
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Linker
-$(PROJECT).elf: $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
-
-# Create hex file
-$(PROJECT).hex: $(PROJECT).elf
-	$(OBJCOPY) -O ihex -R .eeprom $< $@
-
-# Uploader
-upload: $(PROJECT).hex
-	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -U flash:w:$<:i
-
-# Cleaner
-clean:
-	rm -f *.o *.elf *.hex
-
-.PHONY: all upload clean
+$(TARGET) :$(OBJS)
