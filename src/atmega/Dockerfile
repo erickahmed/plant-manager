@@ -13,6 +13,6 @@ WORKDIR /usr/src/
 
 COPY . .
 
-RUN make
+RUN make all
 
 CMD ["./main"]

@@ -1,7 +1,9 @@
+#include <Arduino.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
-#include "config.h"
+#include <avr/interrupt.h>
 #include "moisture.h"
 
 ISR(WDT_vect) {

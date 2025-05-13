@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include "moisture.h"
 #include "config.h"
 
@@ -23,6 +26,7 @@ int16_t readMoisture(void) {
     moistureReadingSum += analogRead(MOISTURE_SENSOR_A0);
     moistureReadingCount++;
 
+    //TODO: implement variance check (if over a certain variance discard measurements for this cicle)
     if (moistureReadingCount >= SENSOR_READINGS) {
         int16_t avg = moistureReadingSum / SENSOR_READINGS;
         //Serial.println(avg);
