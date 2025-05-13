@@ -28,12 +28,12 @@ int16_t readMoisture(void) {
 
     //TODO: implement variance check (if over a certain variance discard measurements for this cicle)
     if (moistureReadingCount >= SENSOR_READINGS) {
-        int16_t avg = moistureReadingSum / SENSOR_READINGS;
-        //Serial.println(avg);
+        int16_t average = moistureReadingSum / SENSOR_READINGS;
+        //Serial.println(average);
         moistureReadingSum = 0;
         moistureReadingCount = 0;
         readSensors = false;
-        return avg;
+        return average;
     } else readSensors = true;
 
     return -1;

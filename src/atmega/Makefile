@@ -1,4 +1,4 @@
-PROJECT = plant-manager
+PROJECT = vase-control
 
 MCU = atmega328p
 F_CPU = 16000000UL

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-IMAGE_NAME="plant-manager-builder"
+IMAGE_NAME="vase-control-builder"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-IMAGE_NAME="plant-manager-builder"
+IMAGE_NAME="vase-control-builder"
 DOCKERFILE="$SCRIPT_DIR/Dockerfile"
 BUILD_CTX="$SCRIPT_DIR"
 DEST_HEX="$SCRIPT_DIR/build/moisture.hex"
