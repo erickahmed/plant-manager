@@ -17,4 +17,4 @@ docker run --rm "$IMAGE_NAME" \
   cat /usr/src/build/moisture.hex > "$DEST_HEX"
 
 command -v avrdude >/dev/null || { echo "Install avrdude"; exit 1; }
-avrdude -v -p "$MCU" -c "$PRG" $AVR_FLAGS -D -U flash:w:"$DEST_HEX":i
+avrdude -v -p m328p -c usbasp -U flash:w:build/moisture.hex:i

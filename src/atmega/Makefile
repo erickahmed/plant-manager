@@ -2,7 +2,6 @@ PROJECT = vase-control
 
 MCU = atmega328p
 F_CPU = 16000000UL
-PROGRAMMER = usbasp
 
 ARDUINO_INSTALL_PATH = /usr/share/arduino
 ARDUINO_CORE_PATH = $(ARDUINO_INSTALL_PATH)/hardware/arduino/avr/cores/arduino
@@ -12,9 +11,11 @@ CC = avr-gcc
 CXX = avr-g++
 LD = $(CXX)
 OC = avr-objcopy
-AD = avrdude
 AR = avr-ar
 RM = rm -f
+
+AVRDUDE = avrdude
+AVRDUDE_FLAGS = -v -p m328p -c usbasp
 
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
@@ -65,7 +66,6 @@ $(ELF_TARGET): $(OBJS) $(CORE_LIB)
 $(CORE_LIB): $(CORE_OBJS)
 	$(AR) rcs $@ $^
 
-# Compile your C++ files
 $(OBJ_DIR)/%.o: %.cpp $(HDRS) Makefile
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -78,11 +78,8 @@ $(CORE_DIR)/%.o: $(ARDUINO_CORE_PATH)/%.cpp Makefile
 $(TARGET): $(ELF_TARGET)
 	$(OC) -O ihex -R .eeprom $< $@
 
-flash: $(TARGET)
-	$(AD) -v -p $(MCU) -c $(PROGRAMMER) -D -U flash:w:$<:i
-
 clean:
 	$(RM) $(TARGET) $(ELF_TARGET) $(OBJS) $(CORE_OBJS) $(CORE_LIB)
 	$(RM) -r $(BUILD_DIR)
 
-.PHONY: all flash clean
+.PHONY: all clean
