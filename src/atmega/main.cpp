@@ -31,14 +31,16 @@ void setup(void) {
     watchdogs();
 }
 
-void loop(void) {
-    if (readSensors) {
-        int16_t result = readMoisture();
-        if (result != -1) {
-            Serial.println(result);
-            readSensors = false;
+int main(void) {
+    while(true) {
+        if (readSensors) {
+            int16_t result = readMoisture();
+            if (result != -1) {
+                Serial.println(result);
+                readSensors = false;
+            }
         }
+        enterSleep();
     }
-
-    enterSleep();
+    return 0;
 }
