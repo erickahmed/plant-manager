@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <avr/sleep.h>
@@ -26,17 +25,19 @@ void enterSleep(void) {
 }
 
 void setup(void) {
-    Serial.begin(9600);
     initMoistureSensor();
     watchdogs();
 }
 
 int main(void) {
+    setup();
+
     while(true) {
+
         if (readSensors) {
             int16_t result = readMoisture();
             if (result != -1) {
-                Serial.println(result);
+                //Serial.println(result);
                 readSensors = false;
             }
         }

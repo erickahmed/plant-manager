@@ -27,9 +27,10 @@ CXXFLAGS = $(CFLAGS) -fno-exceptions -fpermissive -std=gnu++11
 LDFLAGS = -Wall -Os -mmcu=$(MCU) -Wl,--gc-sections
 LIBS = -lm
 
-SRCS_CPP = main.cpp moisture.cpp
-HDRS = moisture.h config.h
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS_CPP:.cpp=.o))
+SRCS_C = adc.c moisture.c main.c
+#SRCS_CPP = main.cpp
+HDRS = moisture.h config.h adc.h
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS_CPP:.cpp=.o) $(SRCS_C:.c=.o))
 
 CORE_C_SRCS = \
 	wiring.c \
@@ -44,7 +45,6 @@ CORE_CPP_SRCS = \
 	Stream.cpp \
 	HardwareSerial.cpp \
 	HardwareSerial0.cpp \
-	main.cpp
 
 CORE_SRCS = $(addprefix $(ARDUINO_CORE_PATH)/, $(CORE_C_SRCS) $(CORE_CPP_SRCS))
 CORE_OBJS = $(patsubst $(ARDUINO_CORE_PATH)/%.c,$(CORE_DIR)/%.o,$(filter %.c,$(CORE_SRCS))) \
@@ -65,6 +65,9 @@ $(ELF_TARGET): $(OBJS) $(CORE_LIB)
 
 $(CORE_LIB): $(CORE_OBJS)
 	$(AR) rcs $@ $^
+
+$(OBJ_DIR)/%.o: %.c $(HDRS) Makefile
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: %.cpp $(HDRS) Makefile
 	$(CXX) $(CXXFLAGS) -c $< -o $@
