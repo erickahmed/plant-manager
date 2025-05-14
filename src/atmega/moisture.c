@@ -6,36 +6,57 @@
 #include "config.h"
 #include "adc.h"
 
-static int16_t moistureReadingSum = 0;
-static int8_t moistureReadingCount = 0;
-
 volatile bool readSensors = false;
 
-void initMoistureSensor(void) {
-    DDRC &= ~(1 << MOISTURE_SENSOR_A0); // set as input
-    PORTC &= ~(1 << MOISTURE_SENSOR_A0); //disable pullup
+void initMoistureSensors(void) {
+    // Set as input
+    DDRC &= ~((1 << MOISTURE_SENSOR_A0) |
+              (1 << MOISTURE_SENSOR_A1) |
+              (1 << MOISTURE_SENSOR_A2) |
+              (1 << MOISTURE_SENSOR_A3) |
+              (1 << MOISTURE_SENSOR_A4) |
+              (1 << MOISTURE_SENSOR_A5)) ;
+              //(1 << MOISTURE_SENSOR_A6) |
+              //(1 << MOISTURE_SENSOR_A7));
+    // Disable pullup
+    PORTC &= ~((1 << MOISTURE_SENSOR_A0) |
+               (1 << MOISTURE_SENSOR_A1) |
+               (1 << MOISTURE_SENSOR_A2) |
+               (1 << MOISTURE_SENSOR_A3) |
+               (1 << MOISTURE_SENSOR_A4) |
+               (1 << MOISTURE_SENSOR_A5)) ;
+               //(1 << MOISTURE_SENSOR_A6) |
+               //(1 << MOISTURE_SENSOR_A7));
 }
 
-void triggerSensorRead(void) {
+void triggerSensorsRead(void) {
     readSensors = true;
 }
 
+int16_t moistureSensorsAverage(int8_t sensorPin) {
+    int16_t sum = 0;
+    for (int i = 0; i < SENSOR_READINGS; i++) {
+        sum += adcRead(sensorPin);
+        //TODO: implement variance check (if over a certain variance discard measurements for this cycle)
+        //TODO: maybe add a small delay using watchdog here?
+        //TODO IMPORTANT: if value < 1 or > 1022, discard that measurement
+    }
+    return sum / SENSOR_READINGS;
+}
+
 int16_t readMoisture(void) {
-    if (!readSensors)
-        return -1;
+    uint8_t sensorPins[SENSORS_NUM] = { MOISTURE_SENSOR_A0, MOISTURE_SENSOR_A1,
+                                        MOISTURE_SENSOR_A2, MOISTURE_SENSOR_A3,
+                                        MOISTURE_SENSOR_A4, MOISTURE_SENSOR_A5 };
+                                        //MOISTURE_SENSOR_A6, MOISTURE_SENSOR_A7 };
 
-    adcInit();
-    moistureReadingSum += adcRead(MOISTURE_SENSOR_A0);
-    moistureReadingCount++;
+    int16_t overallSum = 0;
 
-    //TODO: implement variance check (if over a certain variance discard measurements for this cicle)
-    if (moistureReadingCount >= SENSOR_READINGS) {
-        int16_t average = moistureReadingSum / SENSOR_READINGS;
-        moistureReadingSum = 0;
-        moistureReadingCount = 0;
-        readSensors = false;
-        return average;
-    } else readSensors = true;
+    for (int i = 0; i < SENSORS_NUM; i++) {
+        int16_t sensorAverage = moistureSensorsAverage(sensorPins[i]);
+        //TODO: if a sensor gives 0 or 1023, discard that sensor entirely (means it is disconnected or not working)
+        overallSum += sensorAverage;
+    }
 
-    return -1;
+    return overallSum / SENSORS_NUM;
 }

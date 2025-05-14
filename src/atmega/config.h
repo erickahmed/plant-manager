@@ -9,10 +9,11 @@
 #define MOISTURE_SENSOR_A5 PC5
 // NOTE: PC6 PC7 are not accessible by default on Arduino Uno R3
 // You need to use the ATMega328p on a custom PCB and use pins 1 and 2
-#define MOISTURE_SENSOR_A6 PC6
-#define MOISTURE_SENSOR_A7 PC7
+//#define MOISTURE_SENSOR_A6 PC6
+//#define MOISTURE_SENSOR_A7 PC7
 
 
 #define SENSOR_READINGS 5
+#define SENSORS_NUM 6
 
 #endif

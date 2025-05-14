@@ -4,9 +4,10 @@
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include "moisture.h"
+#include "adc.h"
 
 ISR(WDT_vect) {
-    readSensors = true;
+    triggerSensorsRead();
 }
 
 void watchdogs(void) {
@@ -25,7 +26,8 @@ void enterSleep(void) {
 }
 
 void setup(void) {
-    initMoistureSensor();
+    adcInit();
+    initMoistureSensors();
     watchdogs();
 }
 
@@ -33,13 +35,10 @@ int main(void) {
     setup();
 
     while(true) {
-
         if (readSensors) {
             int16_t result = readMoisture();
-            if (result != -1) {
-                //Serial.println(result);
-                readSensors = false;
-            }
+
+            //TODO: send result to esp32
         }
         enterSleep();
     }
