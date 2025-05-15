@@ -7,8 +7,6 @@
 #include "moisture.h"
 #include "pump.h"
 
-
-
 ISR(WDT_vect) {
     triggerRead();
 }
@@ -43,7 +41,7 @@ int main(void) {
             int16_t result = moistureRead();
             //espSend(VASE_NUM, result)
         }
-        // if(espGet("ask if i need to water plants") == true) {trigger()}
+        // if(espGet("ask if i need to water plants") == true) {waterPlant()}
         enterSleep();
     }
     return 0;

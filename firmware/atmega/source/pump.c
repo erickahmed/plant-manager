@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "config.h"
 
 void pumpsInit(void) {
     // Set as input
@@ -21,4 +22,9 @@ void triggerPump(int8_t pump_pin, int16_t milliseconds) {
 
     // Turn off pump
     PORTD &= ~(1 << pump_pin);
+}
+
+void waterPlant(void) {
+    //for each pump --> turn em on
+    //better to have it here as function instead of doing it in main
 }
