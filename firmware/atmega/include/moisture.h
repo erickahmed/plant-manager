@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-void initMoistureSensors(void);
-void triggerSensorsRead(void);
-int16_t moistureSensorsAverage(int8_t sensorPin);
-int16_t readMoisture(void);
+void sensorsInit(void);
+void triggerRead(void);
+int16_t moistureAverage(int8_t sensorPin);
+int16_t moistureRead(void);
 
 extern volatile bool readSensors;
 

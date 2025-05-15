@@ -8,7 +8,7 @@
 
 volatile bool readSensors = false;
 
-void initMoistureSensors(void) {
+void sensorsInit(void) {
     // Set as input
     DDRC &= ~((1 << MOISTURE_SENSOR_A0) |
               (1 << MOISTURE_SENSOR_A1) |
@@ -29,11 +29,11 @@ void initMoistureSensors(void) {
                //(1 << MOISTURE_SENSOR_A7));
 }
 
-void triggerSensorsRead(void) {
+void triggerRead(void) {
     readSensors = true;
 }
 
-int16_t moistureSensorsAverage(int8_t sensorPin) {
+int16_t moistureAverage(int8_t sensorPin) {
     int16_t sum = 0;
     for (int i = 0; i < SENSOR_READINGS; i++) {
         sum += adcRead(sensorPin);
@@ -44,7 +44,7 @@ int16_t moistureSensorsAverage(int8_t sensorPin) {
     return sum / SENSOR_READINGS;
 }
 
-int16_t readMoisture(void) {
+int16_t moistureRead(void) {
     uint8_t sensorPins[SENSORS_NUM] = { MOISTURE_SENSOR_A0, MOISTURE_SENSOR_A1,
                                         MOISTURE_SENSOR_A2, MOISTURE_SENSOR_A3,
                                         MOISTURE_SENSOR_A4, MOISTURE_SENSOR_A5 };
@@ -53,7 +53,7 @@ int16_t readMoisture(void) {
     int16_t overallSum = 0;
 
     for (int i = 0; i < SENSORS_NUM; i++) {
-        int16_t sensorAverage = moistureSensorsAverage(sensorPins[i]);
+        int16_t sensorAverage = moistureAverage(sensorPins[i]);
         //TODO: if a sensor gives 0 or 1023, discard that sensor entirely (means it is disconnected or not working)
         overallSum += sensorAverage;
     }

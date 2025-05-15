@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+//#define VASE_NUM 0
+
 #define MOISTURE_SENSOR_A0 PC0
 #define MOISTURE_SENSOR_A1 PC1
 #define MOISTURE_SENSOR_A2 PC2
@@ -12,6 +14,12 @@
 //#define MOISTURE_SENSOR_A6 PC6
 //#define MOISTURE_SENSOR_A7 PC7
 
+// You may connect only the number of pumps that actually are needed in the vase
+#define PUMP_D3 PD3
+#define PUMP_D4 PD4
+#define PUMP_D5 PD5
+#define PUMP_D6 PD6
+#define PUMP_D7 PD7
 
 #define SENSOR_READINGS 5
 #define SENSORS_NUM 6

@@ -7,7 +7,7 @@
 #include "adc.h"
 
 ISR(WDT_vect) {
-    triggerSensorsRead();
+    triggerRead();
 }
 
 void watchdogs(void) {
@@ -27,7 +27,8 @@ void enterSleep(void) {
 
 void setup(void) {
     adcInit();
-    initMoistureSensors();
+    //pumpsInit();
+    sensorsInit();
     watchdogs();
 }
 
@@ -36,12 +37,10 @@ int main(void) {
 
     while(true) {
         if (readSensors) {
-            int16_t result = readMoisture();
-
-            //TODO: send result to esp32
+            int16_t result = moistureRead();
+            //espSend(VASE_NUM, result)
         }
-        // readFromEsp()
-        // if esp tells to water plants: waterPlants()
+        // if(espGet("ask if i need to water plants") == true) {trigger()}
         enterSleep();
     }
     return 0;
