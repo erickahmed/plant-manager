@@ -40,6 +40,8 @@ int main(void) {
 
             //TODO: send result to esp32
         }
+        // readFromEsp()
+        // if esp tells to water plants: waterPlants()
         enterSleep();
     }
     return 0;

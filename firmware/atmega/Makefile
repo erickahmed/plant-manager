@@ -11,10 +11,11 @@ RM = rm -f
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 
-SRCS_C = adc.c moisture.c main.c
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS_C:.c=.o))
+SRCS_C = source/adc.c source/moisture.c source/main.c
 
-CFLAGS = -Wall -Os -DF_CPU=$(F_CPU) -mmcu=$(MCU) -I.
+OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS_C:.c=.o)))
+
+CFLAGS = -Wall -Os -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Iinclude
 LDFLAGS = -Wall -Os -mmcu=$(MCU)
 LIBS = -lm
 
@@ -25,11 +26,12 @@ TARGET = $(BUILD_DIR)/$(EXEC).hex
 all: $(TARGET)
 
 $(shell mkdir -p $(OBJ_DIR))
+$(shell mkdir -p $(BUILD_DIR))
 
 $(ELF_TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS) -o $@ $(LIBS)
 
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: source/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(ELF_TARGET)
