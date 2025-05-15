@@ -3,8 +3,11 @@
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
-#include "moisture.h"
 #include "adc.h"
+#include "moisture.h"
+#include "pump.h"
+
+
 
 ISR(WDT_vect) {
     triggerRead();
@@ -27,8 +30,8 @@ void enterSleep(void) {
 
 void setup(void) {
     adcInit();
-    //pumpsInit();
     sensorsInit();
+    //pumpsInit();
     watchdogs();
 }
 
