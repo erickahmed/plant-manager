@@ -8,7 +8,7 @@
 #include "pump.h"
 
 ISR(WDT_vect) {
-    triggerRead();
+    triggerMoistureRead();
 }
 
 void watchdogs(void) {
@@ -29,7 +29,7 @@ void enterSleep(void) {
 void setup(void) {
     adcInit();
     sensorsInit();
-    //pumpsInit();
+    pumpsInit();
     watchdogs();
 }
 
@@ -41,6 +41,7 @@ int main(void) {
             int16_t result = moistureRead();
             //espSend(VASE_NUM, result)
         }
+        triggerPump(PUMP_D7, 50);
         // if(espGet("ask if i need to water plants") == true) {waterPlant()}
         enterSleep();
     }

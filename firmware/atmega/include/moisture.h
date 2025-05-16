@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 void sensorsInit(void);
-void triggerRead(void);
+void triggerMoistureRead(void);
 int16_t moistureAverage(int8_t sensorPin);
 int16_t moistureRead(void);
 

@@ -29,7 +29,7 @@ void sensorsInit(void) {
                //(1 << MOISTURE_SENSOR_A7));
 }
 
-void triggerRead(void) {
+void triggerMoistureRead(void) {
     readSensors = true;
 }
 

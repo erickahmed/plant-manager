@@ -15,7 +15,7 @@
 //#define MOISTURE_SENSOR_A7 PC7
 
 // You may just connect the pumps that actually are needed in the vase
-// or define exactly the connected pumps on your system
+// or define only the connected pumps on your system
 #define PUMP_D3 PD3
 #define PUMP_D4 PD4
 #define PUMP_D5 PD5
