@@ -11,7 +11,7 @@ RM = rm -f
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 
-SRCS_C = source/adc.c source/moisture.c source/main.c
+SRCS_C = source/adc.c source/moisture.c source/main.c source/pump.c
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS_C:.c=.o)))
 

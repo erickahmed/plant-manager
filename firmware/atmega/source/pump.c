@@ -10,7 +10,7 @@ void pumpsInit(void) {
               (1 << PUMP_D5) |
               (1 << PUMP_D4) |
               (1 << PUMP_D3) |
-              0 | 0 | 0 ));
+              0 | 0 | 0 );
 }
 
 void triggerPump(int8_t pump_pin, int16_t milliseconds) {
@@ -21,7 +21,7 @@ void triggerPump(int8_t pump_pin, int16_t milliseconds) {
     // NOTE: watchout for overflows!! create a safety net.
 
     // Turn off pump
-    PORTD &= ~(1 << pump_pin);
+    //PORTD &= ~(1 << pump_pin);
 }
 
 void waterPlant(void) {

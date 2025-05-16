@@ -5,5 +5,5 @@
 #include "config.h"
 
 void pumpsInit(void);
-void pumpsTrigger(uint8_t digital_pins, int16_t milliseconds);
+void triggerPump(uint8_t digital_pins, int16_t milliseconds);
 void waterPlant(void);
