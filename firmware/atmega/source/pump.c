@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "pump.h"
 #include "config.h"
 
@@ -10,14 +11,15 @@ void pumpsInit(void) {
         actuatorMask |= (1 << actuatorPins[i]);
     }
     DDRD |= actuatorMask;
+    //PORTD &= ~(1 << actuatorMask);
 }
 
 void triggerPump(uint8_t pump_pin) {
     // Turn on pump
     PORTD |= (1 << pump_pin);
 
-    // timer for a fixed n milliseconds
-    // hardcoded for now
+    _delay_ms(500);
+    // Here there could be the issue of the AVR hanging when pump is on
 
     // Turn off pump
     PORTD &= ~(1 << pump_pin);
