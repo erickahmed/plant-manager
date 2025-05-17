@@ -45,7 +45,7 @@ extern volatile bool readSensors;
 
 void sensorsInit(void);
 void triggerMoistureRead(void);
-int16_t moistureAverage(int8_t sensorPin);
-int16_t moistureRead(void);
+uint16_t moistureAverage(uint8_t sensorPin);
+uint16_t moistureRead(void);
 
 #endif

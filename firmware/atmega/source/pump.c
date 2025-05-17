@@ -12,7 +12,7 @@ void pumpsInit(void) {
     DDRD |= actuatorMask;
 }
 
-void triggerPump(int8_t pump_pin) {
+void triggerPump(uint8_t pump_pin) {
     // Turn on pump
     PORTD |= (1 << pump_pin);
 
@@ -24,9 +24,7 @@ void triggerPump(int8_t pump_pin) {
 }
 
 void waterPlant(void) {
-    for (int i=0; i < ACTUATORS_NUM; i++) {
+    for (uint8_t i=0; i < ACTUATORS_NUM; i++) {
         triggerPump(actuatorPins[i]);
     }
-
-
 }

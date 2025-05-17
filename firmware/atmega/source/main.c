@@ -38,10 +38,9 @@ int main(void) {
 
     while(true) {
         if (readSensors) {
-            int16_t result = moistureRead();
+            uint16_t result = moistureRead();
             //espSend(VASE_NUM, result)
         }
-        triggerPump(PUMP_D7, 50);
         // if(espGet("ask if i need to water plants") == true) {waterPlant()}
         enterSleep();
     }
