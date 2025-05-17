@@ -42,6 +42,8 @@ int main(void) {
             //espSend(VASE_NUM, result)
         }
         // if(espGet("ask if i need to water plants") == true) {waterPlant()}
+
+        readSensors = false;
         enterSleep();
     }
     return 0;
