@@ -7,7 +7,7 @@ IMAGE_NAME="vase-control-builder"
 DOCKERFILE="$SCRIPT_DIR/Dockerfile"
 BUILD_CTX="$SCRIPT_DIR"
 DEST_HEX="$SCRIPT_DIR/build/atmega.hex"
-MCU="atmega328p"; PRG="usbasp"; AVR_FLAGS="-B 10"
+MCU="atmega328p"; PRG="usbasp"
 
 docker build -t "$IMAGE_NAME" -f "$DOCKERFILE" "$BUILD_CTX"
 
