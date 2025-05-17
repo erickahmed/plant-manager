@@ -9,24 +9,12 @@
 volatile bool readSensors = false;
 
 void sensorsInit(void) {
-    // Set as input
-    DDRC &= ~((1 << MOISTURE_SENSOR_A0) |
-              (1 << MOISTURE_SENSOR_A1) |
-              (1 << MOISTURE_SENSOR_A2) |
-              (1 << MOISTURE_SENSOR_A3) |
-              (1 << MOISTURE_SENSOR_A4) |
-              (1 << MOISTURE_SENSOR_A5)) ;
-              //(1 << MOISTURE_SENSOR_A6) |
-              //(1 << MOISTURE_SENSOR_A7));
-    // Disable pullup
-    PORTC &= ~((1 << MOISTURE_SENSOR_A0) |
-               (1 << MOISTURE_SENSOR_A1) |
-               (1 << MOISTURE_SENSOR_A2) |
-               (1 << MOISTURE_SENSOR_A3) |
-               (1 << MOISTURE_SENSOR_A4) |
-               (1 << MOISTURE_SENSOR_A5)) ;
-               //(1 << MOISTURE_SENSOR_A6) |
-               //(1 << MOISTURE_SENSOR_A7));
+    uint8_t sensorMask = 0;
+    for (uint8_t i = 0; i < SENSORS_NUM; i++) {
+        sensorMask |= (1 << sensorPins[i]);
+    }
+    DDRC &= ~sensorMask;
+    PORTC &= ~sensorMask;
 }
 
 void triggerMoistureRead(void) {
@@ -45,16 +33,11 @@ int16_t moistureAverage(int8_t sensorPin) {
 }
 
 int16_t moistureRead(void) {
-    uint8_t sensorPins[SENSORS_NUM] = { MOISTURE_SENSOR_A0, MOISTURE_SENSOR_A1,
-                                        MOISTURE_SENSOR_A2, MOISTURE_SENSOR_A3,
-                                        MOISTURE_SENSOR_A4, MOISTURE_SENSOR_A5 };
-                                        //MOISTURE_SENSOR_A6, MOISTURE_SENSOR_A7 };
+    uint16_t overallSum = 0;
 
-    int16_t overallSum = 0;
-
-    for (int i = 0; i < SENSORS_NUM; i++) {
+    for (int8_t i = 0; i < SENSORS_NUM; i++) {
         int16_t sensorAverage = moistureAverage(sensorPins[i]);
-        //TODO: if a sensor gives 0 or 1023, discard that sensor entirely (means it is disconnected or not working)
+        //TODO: if a sensor gives 0, discard that sensor entirely (means it is disconnected or not working)
         overallSum += sensorAverage;
     }
 
