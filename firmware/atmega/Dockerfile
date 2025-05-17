@@ -14,5 +14,3 @@ WORKDIR /usr/src/
 COPY . .
 
 RUN make all
-
-CMD ["./main"]
