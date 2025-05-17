@@ -42,9 +42,10 @@ int main(void) {
             //espSend(VASE_NUM, result)
         }
         // if(espGet("ask if i need to water plants") == true) {waterPlant()}
+        // or maybe it's better to do this with interrupts?
 
         readSensors = false;
         enterSleep();
     }
-    return 0;
+    return -1;
 }
