@@ -20,7 +20,7 @@ void watchdogs(void) {
 }
 
 void enterSleep(void) {
-    set_sleep_mode(SLEEP_MODE_IDLE);
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     sleep_enable();
     sleep_cpu();
     sleep_disable();
