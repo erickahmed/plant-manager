@@ -13,7 +13,7 @@ O_FLAG = -Os
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 
-SRCS_C = source/adc.c source/moisture.c source/main.c source/pump.c
+SRCS_C = source/adc.c source/moisture.c source/main.c source/pump.c source/eeprom.c
 OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS_C:.c=.o)))
 
 CFLAGS = -Wall $(O_FLAG) -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Iinclude
