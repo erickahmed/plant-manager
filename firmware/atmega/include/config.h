@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include <avr/io.h>
 #include "eeprom.h"
 
 #define MOISTURE_SENSOR_A0 PC0
@@ -42,8 +43,8 @@ inline void init() {
     };
 
     uint16_t values[DICT_SIZE] = {
-        2,
-        3,
+        (1 << PD2),
+        (1 << PD3),
         0x20,
         5,
         0,
