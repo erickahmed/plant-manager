@@ -21,7 +21,7 @@
 //#define PUMP_D6 PD6
 #define PUMP_D7 PD7
 
-inline void init() {
+inline void eeprom_init() {
     #define DICT_SIZE 7
 
     #define TWI_SDA         0x20
