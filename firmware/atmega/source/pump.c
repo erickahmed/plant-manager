@@ -14,7 +14,7 @@ void pumpsInit(void) {
     //PORTD &= ~(1 << actuatorMask);
 }
 
-void triggerPump(uint8_t pump_pin) {
+static void triggerPump(uint8_t pump_pin) {
     // Turn on pump
     PORTD |= (1 << pump_pin);
 

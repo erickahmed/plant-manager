@@ -33,7 +33,6 @@ static const int8_t actuatorPins[] = {
 #define ACTUATORS_NUM (sizeof(actuatorPins) / sizeof(actuatorPins[0]))
 
 void pumpsInit(void);
-void triggerPump(uint8_t digital_pins);
 void waterPlant(void);
 
 #endif

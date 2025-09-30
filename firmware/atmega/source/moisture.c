@@ -21,7 +21,7 @@ void triggerMoistureRead(void) {
     readSensors = true;
 }
 
-uint16_t moistureAverage(uint8_t sensorPin) {
+static uint16_t moistureAverage(uint8_t sensorPin) {
     uint16_t sum = 0;
     for (uint8_t i = 0; i < SENSOR_READINGS; i++) {
         sum += adcRead(sensorPin);
