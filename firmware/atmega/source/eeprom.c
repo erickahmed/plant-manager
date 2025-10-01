@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "config.h"
 
 uint8_t eepromRead(uint8_t address) {
     // wait for previous write
@@ -16,10 +15,11 @@ void eepromWrite(uint8_t address, uint8_t data) {
     // wait for previous write
     while (EECR & (1 << EEPE));
 
-    //write to address
-    EEAR = address;
-    EEDR = data;
+     if (eepromRead(address) != data) {
+        EEAR = address;
+        EEDR = data;
 
-    EECR |= (1 << EEMPE);
-    EECR |= (1 << EEPE);
+        EECR |= (1 << EEMPE);
+        EECR |= (1 << EEPE);
+    }
 }
