@@ -21,40 +21,34 @@
 //#define PUMP_D6 PD6
 #define PUMP_D7 PD7
 
-inline void eeprom_init() {
-    #define DICT_SIZE 7
+#define TWI_SDA (1 << PD2)
+#define TWI_SCL (1 << PD3)
 
-    #define TWI_SDA         0x20
-    #define TWI_SCL         0x21
+inline void eeprom_init() {
+    #define DICT_SIZE 4
+
     #define TWI_ADDR        0x22
     #define SENSOR_READINGS 0x23
-    #define VASE_NUM        0x24
-    #define MOISTURE_MIN    0x25
-    #define MOISTURE_MAX    0x26
+    #define MOISTURE_MIN    0x24
+    #define MOISTURE_MAX    0x25
 
     uint8_t keys[DICT_SIZE] = {
-        TWI_SDA,
-        TWI_SCL,
         TWI_ADDR,
         SENSOR_READINGS,
-        VASE_NUM,
         MOISTURE_MIN,
         MOISTURE_MAX
     };
 
     uint16_t values[DICT_SIZE] = {
-        (1 << PD2),
-        (1 << PD3),
         0x20,
         5,
-        0,
         400,
         200
     };
 
-    for (int i = 0; i < DICT_SIZE; i++) {
-        if (eepromRead(keys[i]) != 0xFF) eepromWrite(keys[i], values[i]);
-    }
+    //NOTE: values are not re-initialized if != 0 because they may
+    //      have been changed by the esp32 during previous runs
+    for (int i = 0; i < DICT_SIZE; i++) if (eepromRead(keys[i]) == 0) eepromWrite(keys[i], values[i]);
 }
 
 #endif
