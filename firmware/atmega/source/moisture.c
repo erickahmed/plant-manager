@@ -36,7 +36,7 @@ uint16_t moistureRead(void) {
 
     for (uint8_t i = 0; i < SENSORS_NUM; i++) {
         uint16_t sensorAverage = moistureAverage(sensorPins[i]);
-        //TODO: if a sensor gives 0, discard that sensor entirely (means it is disconnected or not working)
+        //TODO: if a sensor gives 1023, discard that sensor entirely (means it is disconnected or not working)
         overallSum += sensorAverage;
     }
 
