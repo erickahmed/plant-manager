@@ -3,15 +3,21 @@
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include "config.h"
 #include "adc.h"
 #include "moisture.h"
 #include "pump.h"
+#include "twi.h"
 
 ISR(WDT_vect) {
     triggerMoistureRead();
 }
 
-void watchdogs(void) {
+ISR(TWI_vect) {
+    twiAlert();
+}
+
+static void watchdogs(void) {
     cli();
     MCUSR &= ~(1 << WDRF);
     WDTCSR |= (1 << WDCE) | (1 << WDE);
@@ -19,15 +25,16 @@ void watchdogs(void) {
     sei();
 }
 
-void enterSleep(void) {
+static inline void enterSleep(void) {
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     sleep_enable();
     sleep_cpu();
     sleep_disable();
 }
 
-void setup(void) {
+static void setup(void) {
     adcInit();
+    twiInit();
     sensorsInit();
     pumpsInit();
     watchdogs();
@@ -39,10 +46,9 @@ int main(void) {
     while(true) {
         if (readSensors) {
             uint16_t result = moistureRead();
-            //espSend(VASE_NUM, result)
+            // nested if: (result outside range (see config.h)) {waterPlant()}
+
         }
-        // if(espGet("ask if i need to water plants") == true) {waterPlant()}
-        // or maybe it's better to do this with interrupts?
 
         readSensors = false;
         enterSleep();
