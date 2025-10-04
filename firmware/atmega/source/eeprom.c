@@ -23,3 +23,13 @@ void eepromWrite(uint8_t address, uint8_t data) {
         EECR |= (1 << EEPE);
     }
 }
+
+void eepromFlush(uint8_t address)  {
+    if (eepromRead(address) != 0) {
+        EEAR = address;
+        EEDR = 0;
+
+        EECR |= (1 << EEMPE);
+        EECR |= (1 << EEPE);
+    }
+}
