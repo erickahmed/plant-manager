@@ -17,7 +17,7 @@ void sensorsInit(void) {
     PORTC &= ~sensorMask;
 }
 
-void triggerMoistureRead(void) {
+inline void triggerMoistureRead(void) {
     readSensors = true;
 }
 

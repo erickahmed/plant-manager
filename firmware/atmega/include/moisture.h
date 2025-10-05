@@ -44,7 +44,7 @@ static const int8_t sensorPins[] = {
 extern volatile bool readSensors;
 
 void sensorsInit(void);
-void triggerMoistureRead(void);
+inline void triggerMoistureRead(void);
 uint16_t moistureRead(void);
 
 #endif
