@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include "config.h"
+#include "globals.h"
 
 #define BUFFER_SIZE 8
 
@@ -26,9 +27,18 @@ static void twiRespond(int8_t response[]) {
     // Respond to TWI requests
 }
 
-
 static void twiExecute(int8_t buffer[]) {
-    // Perform actions based on received message
+    switch(buffer[0]) {
+        case 0x01: // Send moisture
+            twiRespond(*moisturePtr());
+            break;
+        case 0x02:
+            // Perform action for command 0x02
+            break;
+        default:
+            // twiRespond with unkown command
+            break;
+    }
     // if needed:
     // twiRespond();
 }

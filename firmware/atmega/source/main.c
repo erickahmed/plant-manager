@@ -40,12 +40,17 @@ static void setup(void) {
     watchdogs();
 }
 
+static uint16_t lastMoistureVal = 0;
+
+// Encapsulate lastMoistureVal to read later from twi
+const uint16_t *moisturePtr(void) { return &lastMoistureVal; }
+
 int main(void) {
     setup();
 
     while(true) {
         if (readSensors) {
-            uint16_t result = moistureRead();
+            lastMoistureVal = moistureRead();
             // nested if: (result outside range (see config.h)) {waterPlant()}
 
         }
