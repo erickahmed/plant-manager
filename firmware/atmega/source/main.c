@@ -14,7 +14,7 @@ ISR(WDT_vect) {
 }
 
 ISR(TWI_vect) {
-    twiAlert();
+    twiListen();
 }
 
 static void watchdogs(void) {

@@ -2,8 +2,9 @@
 #include <avr/io.h>
 #include "config.h"
 #include "globals.h"
+#include "pump.h"
 
-#define BUFFER_SIZE 8
+#define BUFFER_SIZE 4
 
 static inline void twiReset(void) {
     // Enable TWI; enable ACK; clear interrupt flag; enable twi external interrupt
@@ -23,27 +24,41 @@ static inline void twiSendNack(void) {
     TWCR = (TWCR & ~(1 << TWEA)) | (1 << TWINT);
 }
 
-static void twiRespond(int8_t response[]) {
-    // Respond to TWI requests
-}
-
-static void twiExecute(int8_t buffer[]) {
+static void twiRespond(int8_t buffer[]) {
     switch(buffer[0]) {
         case 0x01: // Send moisture
             twiRespond(*moisturePtr());
             break;
-        case 0x02:
-            // Perform action for command 0x02
+        case 0x02: // Get MOISTURE_MIN
+            twiRespond(eepromRead(MOISTURE_MIN));
+            break;
+        case 0x03: // Get MOISTURE_MAX
+            twiRespond(eepromRead(MOISTURE_MAX));
+            break;
+        case 0x04: // Set parameters (master will always send all three params)
+            eepromWrite(MOISTURE_MIN, buffer[1]);
+            eepromWrite(MOISTURE_MAX, buffer[2]);
+            eepromWrite(SENSOR_READINGS, buffer[3]);
+            twiSendAck();
+            break;
+        case 0x05: // Get SENSOR_READINGS
+            twiRespond(eepromRead(SENSOR_READINGS));
+            break;
+        case 0x06: // Set SENSOR_READINGS
+            eepromWrite(SENSOR_READINGS, buffer[1]);
+            twiSendAck();
+            break;
+        case 0x07: // Force water plants (one pumping)
+            waterPlant();
+            twiSendAck();
             break;
         default:
-            // twiRespond with unkown command
+            twiSendNack();
             break;
     }
-    // if needed:
-    // twiRespond();
 }
 
-void twiAlert(void) {
+void twiListen(void) {
     static int8_t twiBuffer[BUFFER_SIZE] = {0};
     static uint8_t bufferIndex = 0;
 
@@ -58,7 +73,7 @@ void twiAlert(void) {
             } else twiSendNack();
             break;
         case 0xA0: // stop condition
-            twiExecute(twiBuffer);
+            twiRespond(twiBuffer);
             twiReset();
             break;
         default:
