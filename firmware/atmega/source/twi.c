@@ -12,7 +12,7 @@ static inline void twiReset(void) {
 }
 
 void twiInit(void) {
-    TWAR = TWI_ADDR; //address definition found in config.h
+    TWAR = (TWI_ADDR << 1); //address definition found in config.h
     twiReset();
 }
 
@@ -26,6 +26,7 @@ static inline void twiSendNack(void) {
 
 static void twiRespond(int8_t buffer[]) {
     switch(buffer[0]) {
+        //TODO: simplify by using a more parametrized way go set and get data
         case 0x01: // Send moisture
             twiRespond(*moisturePtr());
             break;
@@ -35,7 +36,7 @@ static void twiRespond(int8_t buffer[]) {
         case 0x03: // Get MOISTURE_MAX
             twiRespond(eepromRead(MOISTURE_MAX));
             break;
-        case 0x04: // Set parameters (master will always send all three params)
+        case 0x04: // Set parameters
             eepromWrite(MOISTURE_MIN, buffer[1]);
             eepromWrite(MOISTURE_MAX, buffer[2]);
             eepromWrite(SENSOR_READINGS, buffer[3]);
@@ -59,6 +60,19 @@ static void twiRespond(int8_t buffer[]) {
 }
 
 void twiListen(void) {
+
+    /*
+        HOW TO SPEAK MASTER'S LANGUAGE:
+            Message is saved bit per bit on a buffer array like this:
+            [ message, param0, param1, param2 ]
+
+            So when parsing:
+            buffer[0] is the message itself
+            buffer[1] to buffer[3] are parameters
+
+            TODO: see comment on line 29
+    */
+
     static int8_t twiBuffer[BUFFER_SIZE] = {0};
     static uint8_t bufferIndex = 0;
 
