@@ -23,15 +23,15 @@ RUN apt-get update && \
 
 WORKDIR /usr/src/
 
-RUN mkdir -p ~/esp/firmware
-RUN git clone --recursive https://github.com/espressif/esp-idf.git ~/esp/esp-idf
-RUN cd ~/esp/esp-idf && ./install.sh esp32
-ENV IDF_PATH=~/esp/esp-idf
-RUN . $IDF_PATH/export.sh
+ENV IDF_PATH=/usr/src/esp/esp-idf
+ENV IDF_PATH_FORCE=1
 
-COPY . ~/esp/firmware/
+RUN mkdir -p /usr/src/esp/firmware
+RUN git clone --recursive https://github.com/espressif/esp-idf.git $IDF_PATH
 
-RUN cd ~/esp/firmware/
-RUN idf.py set-target esp32
-RUN idf.py menuconfig
-RUN idf.py build
+RUN cd $IDF_PATH && ./install.sh esp32
+
+COPY . /usr/src/esp/firmware/
+
+WORKDIR /usr/src/esp/firmware/
+RUN /bin/bash -c "source $IDF_PATH/export.sh && idf.py set-target esp32 && idf.py menuconfig && idf.py build"
