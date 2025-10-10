@@ -33,7 +33,7 @@ extern "C" void app_main(void)
     };
     esp_pm_configure(&pm_cfg);
 
-
+    heap_caps_init();
 
     xTaskCreate(watchdogTask, "wdt", 256, NULL, configMAX_PRIORITIES-1, NULL);
 }
