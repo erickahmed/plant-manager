@@ -23,5 +23,17 @@ static void watchdogTask(void pvParameters*) {
 
 extern "C" void app_main(void)
 {
+    ESP_LOGI("BOOT", "Hello from user land – bootloader worked yay!");
+
+    static const esp_pm_configure_t pm_cfg = {
+        .max_freq_mhz       = 80,
+        .min_freq_mhz       = 10,
+        .light_sleep_enable = true,
+        .deep_sleep_enable  = true
+    };
+    esp_pm_configure(&pm_cfg);
+
+
+
     xTaskCreate(watchdogTask, "wdt", 256, NULL, configMAX_PRIORITIES-1, NULL);
 }
