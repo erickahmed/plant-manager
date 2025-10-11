@@ -19,18 +19,18 @@ static wifi_config_t wifi_cfg;
 
 static void wifiInit() {
     ESP_LOGI(TAG, "Initializing WiFi...");
-    // Initialize WiFi configuration
+
     memset(&wifi_cfg, 0, sizeof(wifi_cfg));
     strcpy((char*)wifi_cfg.sta.ssid, WIFI_SSID);
     strcpy((char*)wifi_cfg.sta.password, WIFI_PASSWORD);
     wifi_cfg.sta.threshold.authmode = WIFI_AUTH;
-    
+
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    
+
     esp_netif_create_default_wifi_sta();
-    
+
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -43,6 +43,7 @@ static inline void wifiTryConnect() {
     wifiInit();
 
     wifi_mode_t mode;
+
     if(esp_wifi_get_mode(&mode) == ESP_OK && mode == WIFI_MODE_STA) {
         ESP_LOGI(TAG, "Attempting to connect to WiFi...");
         ESP_ERROR_CHECK(esp_wifi_connect());

@@ -36,5 +36,5 @@ COPY . /usr/src/esp/firmware/
 WORKDIR /usr/src/esp/firmware/
 RUN rm -rf build && /bin/bash -c "source $IDF_PATH/export.sh && idf.py set-target esp32c3 && idf.py build"
 
-# Copy binary to standard location for extraction
+
 RUN mkdir -p /usr/src/build && cp build/plant-manager.bin /usr/src/build/esp32.bin
