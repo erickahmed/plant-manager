@@ -6,9 +6,9 @@
 #include "esp_log.h"
 #include "esp_pm.h"
 #include "esp_task_wdt.h"
-#include "freertos/semphr.h"
+#include "wifi.hpp"
 
-volatile bool critical_error_flag = false;
+volatile bool criticalErrorFlag = false;
 
 static void watchdogTask(void *pvParameters) {
     esp_task_wdt_config_t twdt_config = {
