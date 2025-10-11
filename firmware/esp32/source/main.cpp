@@ -1,6 +1,7 @@
 #include <iostream>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_pm.h"
@@ -46,5 +47,6 @@ extern "C" void app_main(void)
 
     heap_caps_init();
 
-    xTaskCreate(watchdogTask, "wdt", 2048, NULL, configMAX_PRIORITIES-1, NULL);
+    xTaskCreate(watchdogTask, "watchdogs", 2048, NULL, configMAX_PRIORITIES-1, NULL);
+    xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);
 }
