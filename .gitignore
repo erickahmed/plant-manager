@@ -56,6 +56,9 @@ $RECYCLE.BIN/
 # VS Code
 .vscode/
 
+# Zed
+.zed
+
 # Backup files
 *~
 *.orig
@@ -63,3 +66,9 @@ $RECYCLE.BIN/
 
 # Logs
 *.log
+
+# EDA
+eda/atmega/atmega-backups
+
+# Personal
+*-debug.sh
