@@ -1,5 +1,5 @@
-idf_component_register(SRCS "../source/main.cpp"
-                            "../source/wifi.cpp"
+idf_component_register(SRCS "./main.cpp"
+                            "./wifi.cpp"
                        INCLUDE_DIRS "../include"
                        REQUIRES esp_wifi
                                 nvs_flash
