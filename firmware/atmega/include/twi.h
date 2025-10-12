@@ -5,5 +5,6 @@ extern volatile uint16_t *pLastMoistureVal;
 
 void twiInit(void);
 void twiListen(void);
+void twiRespond(void);
 
 #endif

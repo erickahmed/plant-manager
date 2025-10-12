@@ -1,10 +1,15 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <avr/io.h>
 #include "config.h"
 #include "pump.h"
 #include "twi.h"
 
 #define BUFFER_SIZE 4
+
+static uint8_t twiBuffer[BUFFER_SIZE] = {0};
+static uint8_t bufferIndex = 0;
+bool respondFlag = false;
 
 static inline void twiReset(void) {
     // Enable TWI; enable ACK; clear interrupt flag; enable twi external interrupt
@@ -29,8 +34,9 @@ static void twiSendData(uint8_t data) {
     twiSendAck();
 }
 
-static void twiRespond(uint8_t buffer[]) {
-    switch(buffer[0]) {
+void twiRespond(void) {
+    //FIXME: refactor this implementation
+    switch(twiBuffer[0]) {
         case 0x01: // Send moisture
             twiSendData(*pLastMoistureVal);
             break;
@@ -41,16 +47,16 @@ static void twiRespond(uint8_t buffer[]) {
             twiSendData(eepromRead(MOISTURE_MAX));
             break;
         case 0x04: // Set parameters
-            eepromWrite(MOISTURE_MIN, buffer[1]);
-            eepromWrite(MOISTURE_MAX, buffer[2]);
-            eepromWrite(SENSOR_READINGS, buffer[3]);
+            eepromWrite(MOISTURE_MIN, twiBuffer[1]);
+            eepromWrite(MOISTURE_MAX, twiBuffer[2]);
+            eepromWrite(SENSOR_READINGS, twiBuffer[3]);
             twiSendAck();
             break;
         case 0x05: // Get SENSOR_READINGS
             twiSendData(eepromRead(SENSOR_READINGS));
             break;
         case 0x06: // Set SENSOR_READINGS
-            eepromWrite(SENSOR_READINGS, buffer[1]);
+            eepromWrite(SENSOR_READINGS, twiBuffer[1]);
             twiSendAck();
             break;
         case 0x07: // Force water plants (one pumping)
@@ -73,15 +79,11 @@ void twiListen(void) {
             So when parsing:
             buffer[0] is the message itself
             buffer[1] to buffer[3] are parameters
-
-            TODO: see comment on line 29
     */
-
-    static uint8_t twiBuffer[BUFFER_SIZE] = {0};
-    static uint8_t bufferIndex = 0;
 
     switch (TWSR & 0xF8) {
         case 0x60: // SLA+W received
+            bufferIndex = 0;
             twiSendAck();
             break;
         case 0x80: // data received
@@ -91,7 +93,7 @@ void twiListen(void) {
             } else twiSendNack();
             break;
         case 0xA0: // stop condition
-            twiRespond(twiBuffer);
+            respondFlag = true;
             twiReset();
             break;
         default:
