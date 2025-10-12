@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include "config.h"
-#include "globals.h"
 #include "pump.h"
+#include "twi.h"
 
 #define BUFFER_SIZE 4
 
@@ -24,17 +24,21 @@ static inline void twiSendNack(void) {
     TWCR = (TWCR & ~(1 << TWEA)) | (1 << TWINT);
 }
 
-static void twiRespond(int8_t buffer[]) {
+static void twiSendData(uint8_t data) {
+    TWDR = data;
+    twiSendAck();
+}
+
+static void twiRespond(uint8_t buffer[]) {
     switch(buffer[0]) {
-        //TODO: simplify by using a more parametrized way go set and get data
         case 0x01: // Send moisture
-            twiRespond(*moisturePtr());
+            twiSendData(*pLastMoistureVal);
             break;
         case 0x02: // Get MOISTURE_MIN
-            twiRespond(eepromRead(MOISTURE_MIN));
+            twiSendData(eepromRead(MOISTURE_MIN));
             break;
         case 0x03: // Get MOISTURE_MAX
-            twiRespond(eepromRead(MOISTURE_MAX));
+            twiSendData(eepromRead(MOISTURE_MAX));
             break;
         case 0x04: // Set parameters
             eepromWrite(MOISTURE_MIN, buffer[1]);
@@ -43,7 +47,7 @@ static void twiRespond(int8_t buffer[]) {
             twiSendAck();
             break;
         case 0x05: // Get SENSOR_READINGS
-            twiRespond(eepromRead(SENSOR_READINGS));
+            twiSendData(eepromRead(SENSOR_READINGS));
             break;
         case 0x06: // Set SENSOR_READINGS
             eepromWrite(SENSOR_READINGS, buffer[1]);
@@ -73,7 +77,7 @@ void twiListen(void) {
             TODO: see comment on line 29
     */
 
-    static int8_t twiBuffer[BUFFER_SIZE] = {0};
+    static uint8_t twiBuffer[BUFFER_SIZE] = {0};
     static uint8_t bufferIndex = 0;
 
     switch (TWSR & 0xF8) {

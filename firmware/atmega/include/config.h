@@ -51,4 +51,6 @@ inline void eeprom_init() {
     for (int i = 0; i < DICT_SIZE; i++) if (eepromRead(keys[i]) == 0) eepromWrite(keys[i], values[i]);
 }
 
+extern volatile uint16_t *pLastMoistureVal;
+
 #endif

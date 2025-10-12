@@ -1,7 +1,9 @@
 #ifndef TWI_H
 #define TWI_H
 
+extern volatile uint16_t *pLastMoistureVal;
+
 void twiInit(void);
-void twiAlert(void);
+void twiListen(void);
 
 #endif

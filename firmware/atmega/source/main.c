@@ -9,6 +9,9 @@
 #include "pump.h"
 #include "twi.h"
 
+volatile uint16_t lastMoistureVal = 0;
+volatile uint16_t *pLastMoistureVal = &lastMoistureVal;
+
 ISR(WDT_vect) {
     triggerMoistureRead();
 }
@@ -40,17 +43,14 @@ static void setup(void) {
     watchdogs();
 }
 
-static uint16_t lastMoistureVal = 0;
-
-// Encapsulate lastMoistureVal to read later from twi
-const uint16_t *moisturePtr(void) { return &lastMoistureVal; }
-
 int main(void) {
     setup();
 
+    pLastMoistureVal = &lastMoistureVal;
+
     while(true) {
         if (readSensors) {
-            lastMoistureVal = moistureRead();
+            *pLastMoistureVal = moistureRead();
             // nested if: (result outside range (see config.h)) {waterPlant()}
 
         }
