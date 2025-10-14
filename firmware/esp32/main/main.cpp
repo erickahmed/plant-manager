@@ -17,7 +17,7 @@ static void watchdogTask(void *pvParameters) {
         .idle_core_mask = 0,
         .trigger_panic = true,
     };
-    ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
+    esp_task_wdt_init(&twdt_config);
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     const TickType_t keepAlivePeriod = pdMS_TO_TICKS(8000);
@@ -27,8 +27,7 @@ static void watchdogTask(void *pvParameters) {
             ESP_LOGE(TAG, "Critical error flag raised. Rebooting.");
             esp_restart();
         }
-
-        esp_task_wdt_reset();
+        ESP_ERROR_CHECK(esp_task_wdt_reset());
 
         vTaskDelay(keepAlivePeriod);
     }
@@ -46,5 +45,5 @@ extern "C" void app_main(void)
     esp_pm_configure(&pm_cfg);
 
     xTaskCreate(watchdogTask, "watchdogs", 2048, NULL, configMAX_PRIORITIES-1, NULL);
-    xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);
+    //xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);
 }
