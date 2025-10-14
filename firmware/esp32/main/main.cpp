@@ -39,7 +39,7 @@ extern "C" void app_main(void)
     ESP_LOGI(TAG, "Hello from user land – bootloader worked yay!");
 
     static const esp_pm_config_t pm_cfg = {
-        .max_freq_mhz       = 80,
+        .max_freq_mhz       = 160,
         .min_freq_mhz       = 10,
         .light_sleep_enable = true
     };
