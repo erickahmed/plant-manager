@@ -34,7 +34,15 @@ RUN cd $IDF_PATH && ./install.sh esp32c3
 COPY . /usr/src/esp/firmware/
 
 WORKDIR /usr/src/esp/firmware/
+
+# Create sdkconfig.defaults with correct flash settings
+RUN echo "CONFIG_ESPTOOLPY_FLASHMODE=dio" > sdkconfig.defaults && \
+    echo "CONFIG_ESPTOOLPY_FLASHFREQ=40m" >> sdkconfig.defaults && \
+    echo "CONFIG_ESPTOOLPY_FLASHSIZE=4MB" >> sdkconfig.defaults
+
 RUN rm -rf build && /bin/bash -c "source $IDF_PATH/export.sh && idf.py set-target esp32c3 && idf.py build"
 
-
-RUN mkdir -p /usr/src/build && cp build/plant-manager.bin /usr/src/build/esp32.bin
+RUN mkdir -p /usr/src/build && \
+    cp build/bootloader/bootloader.bin /usr/src/build/ && \
+    cp build/partition_table/partition-table.bin /usr/src/build/ && \
+    cp build/plant-manager.bin /usr/src/build/
