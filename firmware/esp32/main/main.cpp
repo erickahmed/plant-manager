@@ -17,7 +17,9 @@ static void watchdogTask(void *pvParameters) {
         .idle_core_mask = 0,
         .trigger_panic = true,
     };
-    esp_task_wdt_init(&twdt_config);
+    ESP_ERROR_CHECK(esp_task_wdt_deinit());
+    ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
+
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     const TickType_t keepAlivePeriod = pdMS_TO_TICKS(8000);
