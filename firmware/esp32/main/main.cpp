@@ -29,7 +29,9 @@ static void watchdogTask(void *pvParameters) {
             ESP_LOGE(TAG, "Critical error flag raised. Rebooting.");
             esp_restart();
         }
+
         ESP_ERROR_CHECK(esp_task_wdt_reset());
+        ESP_LOGE(TAG, "WDT reset");
 
         vTaskDelay(keepAlivePeriod);
     }
@@ -37,7 +39,7 @@ static void watchdogTask(void *pvParameters) {
 
 extern "C" void app_main(void)
 {
-    ESP_LOGI(TAG, "Hello from user land – bootloader worked yay!");
+    ESP_LOGI(TAG, "Bootloader loaded the boot :)");
 
     static const esp_pm_config_t pm_cfg = {
         .max_freq_mhz       = 160,
