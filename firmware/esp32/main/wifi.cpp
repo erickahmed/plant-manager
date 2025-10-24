@@ -18,46 +18,17 @@ static const char* TAG = "WIFI";
 EventGroupHandle_t wifi_event_group;
 const int WIFI_CONNECTED_BIT = BIT0;
 
-static void wifiInit() {
-    ESP_LOGI(TAG, "Initializing WiFi...");
-
-    memset(&wifi_cfg, 0, sizeof(wifi_cfg));
-    strcpy((char*)wifi_cfg.sta.ssid, WIFI_SSID);
-    strcpy((char*)wifi_cfg.sta.password, WIFI_PASSWORD);
-    wifi_cfg.sta.threshold.authmode = WIFI_AUTH;
-
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-    esp_netif_create_default_wifi_sta();
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg));
-
-    ESP_ERROR_CHECK(esp_wifi_start());
-}
-
-static inline void wifiTryConnect() {
-    wifiInit();
-
-    wifi_mode_t mode;
-
-    if(esp_wifi_get_mode(&mode) == ESP_OK && mode == WIFI_MODE_STA) {
-        ESP_LOGI(TAG, "Attempting to connect to WiFi...");
-        ESP_ERROR_CHECK(esp_wifi_connect());
-    } else {
-        ESP_LOGE(TAG, "WiFi mode check failed, setting critical error flag");
-        criticalErrorFlag = true;
-    }
-}
-
-static void wifiManager() {
-    wifi_mode_t mode;
-    if(esp_wifi_get_mode(&mode) != ESP_OK || mode != WIFI_MODE_STA) {
-        wifiTryConnect();
+static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
+    if (event_base == WIFI_EVENT) {
+        switch(event_id) {
+            case WIFI_EVENT_STA_START:
+                esp_wifi_connect();
+                break;
+            case WIFI_EVENT_STA_DISCONNECTED:
+                esp_wifi_connect();
+                xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+                break;
+        }
     }
 }
 
