@@ -15,7 +15,8 @@
 
 static const char* TAG = "WIFI";
 
-static wifi_config_t wifi_cfg;
+EventGroupHandle_t wifi_event_group;
+const int WIFI_CONNECTED_BIT = BIT0;
 
 static void wifiInit() {
     ESP_LOGI(TAG, "Initializing WiFi...");
