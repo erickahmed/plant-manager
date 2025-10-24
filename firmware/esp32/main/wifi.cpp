@@ -47,19 +47,12 @@ void wifi_init_sta(void) {
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, NULL));
 
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = "SSID",
-            .password = "PASSWORD",
-            .threshold = {
-                .authmode = "AUTH_MODE"
-            },
-            .pmf_cfg = {
-                .capable = true,
-                .required = false
-            }
-        }
-    };
+    wifi_config_t wifi_config{};
+    strncpy((char*)wifi_config.sta.ssid, SSID, sizeof(wifi_config.sta.ssid));
+    strncpy((char*)wifi_config.sta.password, PASSWORD, sizeof(wifi_config.sta.password));
+    wifi_config.sta.threshold.authmode = AUTH_MODE;
+    wifi_config.sta.pmf_cfg.capable = true;
+    wifi_config.sta.pmf_cfg.required = false;
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
