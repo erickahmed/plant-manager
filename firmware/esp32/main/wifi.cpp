@@ -50,9 +50,14 @@ void wifi_init_sta(void) {
         .sta = {
             .ssid = "SSID",
             .password = "PASSWORD",
-            .threshold.authmode = "AUTHMODE",
-            .pmf_cfg = { .capable = true, .required = false },
-        },
+            .threshold = {
+                .authmode = "AUTH_MODE"
+            },
+            .pmf_cfg = {
+                .capable = true,
+                .required = false
+            }
+        }
     };
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
