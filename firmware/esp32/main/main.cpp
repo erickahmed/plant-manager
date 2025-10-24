@@ -39,8 +39,6 @@ static void watchdogTask(void *pvParameters) {
 
 extern "C" void app_main(void)
 {
-    ESP_LOGI(TAG, "Bootloader loaded the boot :)");
-
     static const esp_pm_config_t pm_cfg = {
         .max_freq_mhz       = 160,
         .min_freq_mhz       = 10,
