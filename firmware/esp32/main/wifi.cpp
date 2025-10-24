@@ -39,10 +39,12 @@ void wifi_init_sta(void) {
     wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
-    esp_netif_create_default_wifi_sta();
+
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    esp_netif_create_default_wifi_sta();
 
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, NULL));
@@ -61,18 +63,18 @@ void wifi_init_sta(void) {
 
 void wifiTask(void *pvParameters) {
     ESP_LOGI(TAG, "WiFi task started");
-    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     wifi_init_sta();
+    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
     if (bits & WIFI_CONNECTED_BIT) ESP_LOGI("WIFI_TASK", "Wi-Fi connected, ready for network");
 
     for(;;) {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(5000));
+        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(2000));
         if (!(bits & WIFI_CONNECTED_BIT)) ESP_LOGW("WIFI_TASK", "Wi-Fi disconnected, waiting to reconnect...");
 
         esp_task_wdt_reset();
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(4000));
     }
 }
