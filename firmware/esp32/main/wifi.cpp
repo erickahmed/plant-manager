@@ -75,6 +75,8 @@ void wifiTask(void *pvParameters) {
         if (!(bits & WIFI_CONNECTED_BIT)) ESP_LOGW("WIFI_TASK", "Wi-Fi disconnected, waiting to reconnect...");
 
         esp_task_wdt_reset();
+        ESP_LOGI(TAG, "Wi-Fi reset");
         vTaskDelay(pdMS_TO_TICKS(4000));
+
     }
 }
