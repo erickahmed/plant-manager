@@ -45,12 +45,10 @@ int main(void) {
     pLastMoistureVal = &lastMoistureVal;
 
     while(true) {
-        *pLastMoistureVal = moistureRead();
-        // nested if: (result outside range (see config.h)) {waterPlant()}
-
+        if ((*pLastMoistureVal = moistureRead()) < MOISTURE_MIN) waterPlant();
         twiRespond();
-
         enterSleep();
     }
+
     return -1;
 }
