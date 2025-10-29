@@ -35,37 +35,38 @@ static void twiSendData(uint8_t data) {
 }
 
 void twiRespond(void) {
-    //FIXME: refactor this implementation
-    switch(twiBuffer[0]) {
-        case 0x01: // Send moisture
-            twiSendData(*pLastMoistureVal);
-            break;
-        case 0x02: // Get MOISTURE_MIN
-            twiSendData(eepromRead(MOISTURE_MIN));
-            break;
-        case 0x03: // Get MOISTURE_MAX
-            twiSendData(eepromRead(MOISTURE_MAX));
-            break;
-        case 0x04: // Set parameters
-            eepromWrite(MOISTURE_MIN, twiBuffer[1]);
-            eepromWrite(MOISTURE_MAX, twiBuffer[2]);
-            eepromWrite(SENSOR_READINGS, twiBuffer[3]);
-            twiSendAck();
-            break;
-        case 0x05: // Get SENSOR_READINGS
-            twiSendData(eepromRead(SENSOR_READINGS));
-            break;
-        case 0x06: // Set SENSOR_READINGS
-            eepromWrite(SENSOR_READINGS, twiBuffer[1]);
-            twiSendAck();
-            break;
-        case 0x07: // Force water plants (one pumping)
-            waterPlant();
-            twiSendAck();
-            break;
-        default:
-            twiSendNack();
-            break;
+    if(respondFlag) {
+        switch(twiBuffer[0]) {
+            case 0x01: // Send moisture
+                twiSendData(*pLastMoistureVal);
+                break;
+            case 0x02: // Get MOISTURE_MIN
+                twiSendData(eepromRead(MOISTURE_MIN));
+                break;
+            case 0x03: // Get MOISTURE_MAX
+                twiSendData(eepromRead(MOISTURE_MAX));
+                break;
+            case 0x04: // Set parameters
+                eepromWrite(MOISTURE_MIN, twiBuffer[1]);
+                eepromWrite(MOISTURE_MAX, twiBuffer[2]);
+                eepromWrite(SENSOR_READINGS, twiBuffer[3]);
+                twiSendAck();
+                break;
+            case 0x05: // Get SENSOR_READINGS
+                twiSendData(eepromRead(SENSOR_READINGS));
+                break;
+            case 0x06: // Set SENSOR_READINGS
+                eepromWrite(SENSOR_READINGS, twiBuffer[1]);
+                twiSendAck();
+                break;
+            case 0x07: // Force water plants (one pumping)
+                waterPlant();
+                twiSendAck();
+                break;
+            default:
+                twiSendNack();
+                break;
+        }
     }
 }
 
