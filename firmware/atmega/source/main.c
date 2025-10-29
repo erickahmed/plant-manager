@@ -13,10 +13,6 @@ volatile uint16_t lastMoistureVal = 0;
 volatile uint16_t *pLastMoistureVal = &lastMoistureVal;
 extern bool respondFlag;
 
-ISR(WDT_vect) {
-    triggerMoistureRead();
-}
-
 ISR(TWI_vect) {
     twiListen();
 }
@@ -50,11 +46,9 @@ int main(void) {
     pLastMoistureVal = &lastMoistureVal;
 
     while(true) {
-        if (readSensors) {
-            *pLastMoistureVal = moistureRead();
-            // nested if: (result outside range (see config.h)) {waterPlant()}
-            readSensors = false;
-        }
+        *pLastMoistureVal = moistureRead();
+        // nested if: (result outside range (see config.h)) {waterPlant()}
+
 
         if(respondFlag) {
             twiRespond();

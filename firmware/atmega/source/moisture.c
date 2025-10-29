@@ -17,10 +17,6 @@ void sensorsInit(void) {
     PORTC &= ~sensorMask;
 }
 
-void triggerMoistureRead(void) {
-    readSensors = true;
-}
-
 static uint16_t moistureAverage(uint8_t sensorPin) {
     uint16_t sum = 0;
     for (uint8_t i = 0; i < SENSOR_READINGS; i++) {
