@@ -67,16 +67,16 @@ void wifiTask(void *pvParameters) {
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
-    EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-    if (bits & WIFI_CONNECTED_BIT) ESP_LOGI(TAG, "Wi-Fi connected, ready for network");
-
-    for(;;) {
+    do {
+        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+        ESP_LOGI(TAG, "Wi-Fi connected, ready for network");
+    }
+    while (true) {
         EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000));
         if (!(bits & WIFI_CONNECTED_BIT)) ESP_LOGW(TAG, "Wi-Fi disconnected, waiting to reconnect...");
 
         esp_task_wdt_reset();
         ESP_LOGI(TAG, "Wi-Fi reset");
         vTaskDelay(pdMS_TO_TICKS(4000));
-
     }
 }
