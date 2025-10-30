@@ -8,6 +8,8 @@
 #include "main.hpp"
 #include "wifi-credentials.h"
 
+#define WIFI_MAX_RETRIES 8
+
 static const char* TAG = "WIFI";
 
 EventGroupHandle_t wifi_event_group;
@@ -72,8 +74,19 @@ void wifiTask(void *pvParameters) {
         ESP_LOGI(TAG, "Wi-Fi connected, ready for network");
     }
     while (true) {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000));
-        if (!(bits & WIFI_CONNECTED_BIT)) ESP_LOGW(TAG, "Wi-Fi disconnected, waiting to reconnect...");
+        for(uint8_t retriesCounter = 0; retriesCounter < WIFI_MAX_RETRIES; retriesCounter++) {
+            EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000));
+
+            if (bits & WIFI_CONNECTED_BIT) break;
+
+            ESP_LOGW(TAG, "Wi-Fi disconnected...");
+            vTaskDelay(pdMS_TO_TICKS(250));
+        }
+
+        if (!(xEventGroupGetBits(wifi_event_group) & WIFI_CONNECTED_BIT)) {
+            ESP_LOGE(TAG, "Critical error: Wi-Fi connection lost");
+            criticalErrorFlag = true;
+        }
 
         esp_task_wdt_reset();
         ESP_LOGI(TAG, "Wi-Fi reset");
