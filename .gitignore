@@ -22,12 +22,8 @@ build/
 *.arduino/
 *.ino.cpp
 
-# Arduino libraries you might not want tracked
+# Arduino libraries
 libraries/
-
-# PlatformIO (if you ever use it)
-.pio/
-.vscode/
 
 # === OS and Editor specific ===
 # macOS
@@ -72,3 +68,4 @@ eda/atmega/atmega-backups
 
 # Personal
 *-debug.sh
+wifi-credentials-erick.h

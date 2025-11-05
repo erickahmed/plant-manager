@@ -8,12 +8,12 @@
 #include "main.hpp"
 #include "wifi-credentials.h"
 
-#define WIFI_MAX_RETRIES 8
+#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(30000)
 
 static const char* TAG = "WIFI";
+const int WIFI_CONNECTED_BIT = BIT0;
 
 EventGroupHandle_t wifi_event_group;
-const int WIFI_CONNECTED_BIT = BIT0;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT) {
@@ -69,27 +69,24 @@ void wifiTask(void *pvParameters) {
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
+    TickType_t startTick = xTaskGetTickCount();
     do {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-        ESP_LOGI(TAG, "Wi-Fi connected, ready for network");
+        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000));
+        ESP_LOGI(TAG, "Connecting to Wi-Fi...");
+
+        if (bits & WIFI_CONNECTED_BIT) break;
+
+        ESP_LOGI(TAG, "Connection attempt was unsuccessful");
+        vTaskDelay(pdMS_TO_TICKS(250));
+        } while ((xTaskGetTickCount() - startTick) < WIFI_TIMEOUT_TICKS);
+
+    if (xEventGroupGetBits(wifi_event_group) & WIFI_CONNECTED_BIT) ESP_LOGI(TAG, "Connection attempt was successful");
+    else {
+        ESP_LOGE(TAG, "Critical error: Wi-Fi network refused connection or not found");
+        criticalErrorFlag = true;
     }
-    while (true) {
-        for(uint8_t retriesCounter = 0; retriesCounter < WIFI_MAX_RETRIES; retriesCounter++) {
-            EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000));
 
-            if (bits & WIFI_CONNECTED_BIT) break;
-
-            ESP_LOGW(TAG, "Wi-Fi disconnected...");
-            vTaskDelay(pdMS_TO_TICKS(250));
-        }
-
-        if (!(xEventGroupGetBits(wifi_event_group) & WIFI_CONNECTED_BIT)) {
-            ESP_LOGE(TAG, "Critical error: Wi-Fi connection lost");
-            criticalErrorFlag = true;
-        }
-
-        esp_task_wdt_reset();
-        ESP_LOGI(TAG, "Wi-Fi reset");
-        vTaskDelay(pdMS_TO_TICKS(4000));
-    }
+    esp_task_wdt_reset();
+    ESP_LOGI(TAG, "Wi-Fi reset");
+    vTaskDelay(pdMS_TO_TICKS(4000));
 }
