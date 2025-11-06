@@ -42,7 +42,6 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
     }
 }
 
-
 static void wifi_init_sta(void) {
     esp_err_t nvs_err = nvs_flash_init();
 
@@ -83,8 +82,6 @@ void wifiTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, WIFI_TIMEOUT_TICKS);
-
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGI(TAG, "Wi-Fi task reset");
         vTaskDelay(pdMS_TO_TICKS(4000));

@@ -1,5 +1,6 @@
 idf_component_register(SRCS "./main.cpp"
                             "./wifi.cpp"
+                            "./mqtt.cpp"
                        INCLUDE_DIRS "../include"
                        REQUIRES esp_wifi
                                 nvs_flash
@@ -7,4 +8,5 @@ idf_component_register(SRCS "./main.cpp"
                                 esp_hw_support
                                 esp_system
                                 freertos
-                                log)
+                                log
+                                mqtt_client)
