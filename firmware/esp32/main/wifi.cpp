@@ -8,7 +8,7 @@
 #include "main.hpp"
 #include "wifi-credentials.h"
 
-#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(30000)
+#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(8000)
 
 static const char* TAG = "WIFI";
 const int WIFI_CONNECTED_BIT = BIT0;
@@ -17,20 +17,33 @@ EventGroupHandle_t wifi_event_group;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT) {
-        switch(event_id) {
+        switch (event_id) {
             case WIFI_EVENT_STA_START:
+                ESP_LOGI(TAG, "Wi-Fi process started, connecting...");
+
                 esp_wifi_connect();
                 break;
-            case WIFI_EVENT_STA_DISCONNECTED:
-                esp_wifi_connect();
+            case WIFI_EVENT_STA_DISCONNECTED: {
+                wifi_event_sta_disconnected_t* disconn = (wifi_event_sta_disconnected_t*) event_data;
+                ESP_LOGW(TAG, "Disconnected, reason: %d", disconn->reason);
+
                 xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+                esp_wifi_connect();
+                break;
+            }
+            default:
                 break;
         }
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    }
 }
 
-void wifi_init_sta(void) {
+
+static void wifi_init_sta(void) {
     esp_err_t nvs_err = nvs_flash_init();
 
     if (nvs_err == ESP_ERR_NVS_NO_FREE_PAGES || nvs_err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -69,24 +82,11 @@ void wifiTask(void *pvParameters) {
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
-    TickType_t startTick = xTaskGetTickCount();
-    do {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(1000));
-        ESP_LOGI(TAG, "Connecting to Wi-Fi...");
+    for(;;) {
+        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, WIFI_TIMEOUT_TICKS);
 
-        if (bits & WIFI_CONNECTED_BIT) break;
-
-        ESP_LOGI(TAG, "Connection attempt was unsuccessful");
-        vTaskDelay(pdMS_TO_TICKS(250));
-        } while ((xTaskGetTickCount() - startTick) < WIFI_TIMEOUT_TICKS);
-
-    if (xEventGroupGetBits(wifi_event_group) & WIFI_CONNECTED_BIT) ESP_LOGI(TAG, "Connection attempt was successful");
-    else {
-        ESP_LOGE(TAG, "Critical error: Wi-Fi network refused connection or not found");
-        criticalErrorFlag = true;
+        ESP_ERROR_CHECK(esp_task_wdt_reset());
+        ESP_LOGI(TAG, "Wi-Fi task reset");
+        vTaskDelay(pdMS_TO_TICKS(4000));
     }
-
-    esp_task_wdt_reset();
-    ESP_LOGI(TAG, "Wi-Fi reset");
-    vTaskDelay(pdMS_TO_TICKS(4000));
 }
