@@ -6,6 +6,7 @@
 #include "esp_pm.h"
 #include "esp_task_wdt.h"
 #include "wifi.hpp"
+#include "i2c.cpp"
 
 static const char* TAG = "MAIN";
 
@@ -48,4 +49,5 @@ extern "C" void app_main(void)
 
     xTaskCreate(watchdogTask, "watchdogs", 2048, NULL, configMAX_PRIORITIES-1, NULL);
     xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);
+    xTaskCreate(i2cTask, "i2c", 1024, NULL, configMAX_PRIORITIES-6, NULL);
 }
