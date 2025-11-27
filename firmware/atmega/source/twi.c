@@ -17,7 +17,7 @@ static inline void twiReset(void) {
 }
 
 void twiInit(void) {
-    TWAR = (TWI_ADDR << 1); //address definition found in config.h
+    TWAR = ((eepromRead(TWI_ADDR)) << 1); //address definition found in config.h
     twiReset();
 }
 

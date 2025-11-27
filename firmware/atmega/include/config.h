@@ -27,6 +27,7 @@
 inline void eeprom_init() {
     #define DICT_SIZE 4
 
+    // EEPROM addresses
     #define TWI_ADDR        0x22
     #define SENSOR_READINGS 0x23
     #define MOISTURE_MIN    0x24
@@ -39,8 +40,9 @@ inline void eeprom_init() {
         MOISTURE_MAX
     };
 
+    // actual values
     uint16_t values[DICT_SIZE] = {
-        0x20,
+        0x30,
         5,
         400,
         200
