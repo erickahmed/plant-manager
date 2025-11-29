@@ -27,6 +27,6 @@ void mqttTask(void *pvParameters) {
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGI(TAG, "Task reset");
-        vTaskDelay(pdMS_TO_TICKS(6000));
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
 }
