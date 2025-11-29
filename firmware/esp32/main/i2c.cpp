@@ -12,6 +12,8 @@
 // see limitation on AVR addresses for TWI
 #define SLAVES_NUMBER 32
 
+static const char* TAG = "I2C";
+
 i2c_master_bus_handle_t bus_handle;
 i2c_master_dev_handle_t slave_handles[SLAVES_NUMBER];
 uint8_t slave_count = 0;
@@ -47,9 +49,11 @@ void i2c_read() {}
 void i2c_write() {}
 
 void i2cTask(void *pvParameters) {
+    ESP_LOGI(TAG, "Task started");
     i2c_init();
 
     for(;;) {
+        // first thing: check evengroup for wifi and/or mqqt if tre continue
         // Logic:
         // avr will talk only if spoken by esp32
         // so keep reading from mqtt (mqtt.cpp):
