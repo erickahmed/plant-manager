@@ -45,18 +45,22 @@ static void i2c_init(void) {
     register_slave(0x30);
 }
 
-void i2c_read() {}
-void i2c_write() {}
+static void i2c_read() {} //should read from i2c and if necessary call i2c_write
+static void i2c_write() {}
 
 void i2cTask(void *pvParameters) {
     ESP_LOGI(TAG, "Task started");
     i2c_init();
 
     for(;;) {
-        // first thing: check evengroup for wifi and/or mqqt if tre continue
-        // Logic:
-        // avr will talk only if spoken by esp32
-        // so keep reading from mqtt (mqtt.cpp):
-        // if get told from mqtt to read/write from/to avr -> i2c_write() -> loop i2c_read() until get response -> if needed mqtt_respond()
+        // TODO: this should check for MQTT connection (which in turn checks for WI-FI)
+        ESP_LOGI(TAG, "Checking Wi-Fi connection...");
+        xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+
+        if (bits & WIFI_CONNECTED_BIT) i2c_read();
+
+        ESP_ERROR_CHECK(esp_task_wdt_reset());
+        ESP_LOGI(TAG, "Task reset");
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
