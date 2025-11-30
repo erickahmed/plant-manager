@@ -26,14 +26,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         case MQTT_EVENT_CONNECTED:
             xEventGroupSetBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             mqtt_subscribe();
-            ESP_LOGI(TAG, "Connected to broker");
+            ESP_LOGV(TAG, "Connected to broker");
             break;
         case MQTT_EVENT_DISCONNECTED:
             xEventGroupClearBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             ESP_LOGW(TAG, "Disconnected from broker");
             break;
         case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "Listening to broker");
+            ESP_LOGV(TAG, "Listening to broker");
             ESP_LOGV(TAG, "Topic: %.*s\n", event->topic_len, event->topic);
             ESP_LOGV(TAG, "Data:  %.*s\n", event->data_len, event->data);
 
@@ -68,7 +68,7 @@ static void mqtt_init(void) {
 void mqtt_publish(void) {}
 
 void mqttTask(void *pvParameters) {
-    ESP_LOGI(TAG, "Task started");
+    ESP_LOGV(TAG, "Task started");
 
     i2c_task_handle = xTaskGetCurrentTaskHandle();
 
@@ -77,10 +77,10 @@ void mqttTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        ESP_LOGI(TAG, "Checking broker connection...");
+        ESP_LOGV(TAG, "Checking broker connection...");
 
         if(bits && MQTT_CONNECTED_BIT) {
-            ESP_LOGI(TAG, "Connection estabilished");
+            ESP_LOGV(TAG, "Connection estabilished");
 
             uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_TICKS));
             if (task_notification) twi_do(global_rx_buffer); //FIXME: develop i2c libs! (this func should then call mqtt_publish() if needed)
@@ -90,6 +90,6 @@ void mqttTask(void *pvParameters) {
         }
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
-        ESP_LOGI(TAG, "Task reset");
+        ESP_LOGV(TAG, "Task reset");
     }
 }
