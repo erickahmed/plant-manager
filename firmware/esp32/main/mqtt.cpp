@@ -33,9 +33,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             ESP_LOGW(TAG, "Disconnected from broker");
             break;
         case MQTT_EVENT_DATA:
-            ESP_LOGV(TAG, "Listening to broker");
-            ESP_LOGV(TAG, "Topic: %.*s\n", event->topic_len, event->topic);
-            ESP_LOGV(TAG, "Data:  %.*s\n", event->data_len, event->data);
+            ESP_LOGD(TAG, "Listening to broker");
+            ESP_LOGD(TAG, "Topic: %.*s\n", event->topic_len, event->topic);
+            ESP_LOGD(TAG, "Data:  %.*s\n", event->data_len, event->data);
 
             char incoming_message[50]; //FIXME: check how long is the longest message on AVR!
 
