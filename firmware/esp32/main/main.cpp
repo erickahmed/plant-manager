@@ -7,7 +7,10 @@
 #include "esp_task_wdt.h"
 #include "wifi.hpp"
 
+#define WATCHDOG_KEEPALIVE_TICKS pdMS_TO_TICKS(8000)
+
 extern EventGroupHandle_t connectivity_event_group;
+extern EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
 
 static const char* TAG = "MAIN";
 
@@ -24,7 +27,7 @@ static void watchdogTask(void *pvParameters) {
 
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
-    const TickType_t keepAlivePeriod = pdMS_TO_TICKS(8000);
+    const TickType_t keepAlivePeriod = pdMS_TO_TICKS(WATCHDOG_KEEPALIVE_TICKS);
 
     for(;;) {
         if (criticalErrorFlag) {

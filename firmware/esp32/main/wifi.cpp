@@ -8,7 +8,7 @@
 #include "main.hpp"
 #include "wifi-credentials.h"
 
-#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(8000)
+#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(4500)
 
 static const char* TAG = "WIFI";
 
@@ -83,6 +83,6 @@ void wifiTask(void *pvParameters) {
     for(;;) {
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGI(TAG, "Task reset");
-        vTaskDelay(pdMS_TO_TICKS(4000));
+        vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_TICKS));
     }
 }
