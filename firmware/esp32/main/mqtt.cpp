@@ -8,15 +8,17 @@
 #include "i2c.hpp"
 
 #define MQTT_TASK_TIMEOUT_MS 3000
-#define MQTT_TIMEOUT_MS MQTT_TASK_TIMEOUT_MS/2
+#define MQTT_TIMEOUT_MS (MQTT_TASK_TIMEOUT_MS / 2)
 
 static const char* TAG = "MQTT";
 
 static TaskHandle_t i2c_task_handle = NULL;
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 
-static void mqtt_subscribe(void) {
-    msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
+static char global_rx_buffer[50];
+
+static inline void mqtt_subscribe(void) {
+    esp_mqtt_client_subscribe(mqtt_client, "/topic/qos0", 0);
 }
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
@@ -37,11 +39,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             ESP_LOGD(TAG, "Topic: %.*s\n", event->topic_len, event->topic);
             ESP_LOGD(TAG, "Data:  %.*s\n", event->data_len, event->data);
 
-            char incoming_message[50]; //FIXME: check how long is the longest message on AVR!
+            int len = event->data_len;
+            if (len > sizeof(global_rx_buffer) - 1) len = sizeof(global_rx_buffer) - 1;
+            memcpy(global_rx_buffer, event->data, len);
+            global_rx_buffer[len] = '\0';
 
-            memcpy(incoming_message, event->data, event->data_len);
-            incoming_message[event->data_len] = '\0'; //WARNING: maybe add some checks to the data_len
-            xTaskNotifyGive(i2c_task_handle);
+            if (i2c_task_handle != NULL) xTaskNotifyGive(i2c_task_handle);
             break;
         default:
             break;
@@ -58,18 +61,15 @@ static void mqtt_init(void) {
         },
     };
 
-        esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-        mqttClient = client;
-        // the last argument may be used to pass data to the event handler
-        esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
-        esp_mqtt_client_start(client);
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+    esp_mqtt_client_start(mqtt_client);
 }
 
 void mqttTask(void *pvParameters) {
     ESP_LOGV(TAG, "Task started");
 
     i2c_task_handle = xTaskGetCurrentTaskHandle();
-
     mqtt_init();
 
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
@@ -83,8 +83,8 @@ void mqttTask(void *pvParameters) {
             ESP_LOGV(TAG, "Connection established");
 
             uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
-            if (task_notification) twi_do(global_rx_buffer); //FIXME: develop i2c libs! (this func should then call mqtt_publish() if needed)
-        } else {
+            if (task_notification) i2c_do(global_rx_buffer);
+            else {
             ESP_LOGW(TAG, "Waiting for connection...");
             vTaskDelay(pdMS_TO_TICKS(MQTT_TIMEOUT_MS));
         }
