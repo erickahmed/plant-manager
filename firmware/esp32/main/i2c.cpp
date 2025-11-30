@@ -56,9 +56,10 @@ void i2cTask(void *pvParameters) {
     for(;;) {
         // TODO: this should check for MQTT connection (which in turn checks for WI-FI)
         ESP_LOGI(TAG, "Checking Wi-Fi connection...");
+        //FIXME: change wifi_event_group to connectivity_event_group after merge with dev-esp32-mqtt branch
         xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
 
-        if (bits & WIFI_CONNECTED_BIT) i2c_read();
+        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) i2c_read();
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGI(TAG, "Task reset");
