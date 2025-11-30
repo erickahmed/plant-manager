@@ -11,7 +11,6 @@
 #define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(8000)
 
 static const char* TAG = "WIFI";
-const int WIFI_CONNECTED_BIT = BIT0;
 
 const int WIFI_CONNECTED_BIT = BIT0;
 
@@ -19,7 +18,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
     if (event_base == WIFI_EVENT) {
         switch (event_id) {
             case WIFI_EVENT_STA_START:
-                ESP_LOGI(TAG, "Wi-Fi process started, connecting...");
+                ESP_LOGI(TAG, "Process started, connecting...");
 
                 esp_wifi_connect();
                 break;
@@ -76,14 +75,14 @@ static void wifi_init_sta(void) {
 }
 
 void wifiTask(void *pvParameters) {
-    ESP_LOGI(TAG, "WiFi task started");
+    ESP_LOGI(TAG, "Task started");
 
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
         ESP_ERROR_CHECK(esp_task_wdt_reset());
-        ESP_LOGI(TAG, "Wi-Fi task reset");
+        ESP_LOGI(TAG, "Task reset");
         vTaskDelay(pdMS_TO_TICKS(4000));
     }
 }
