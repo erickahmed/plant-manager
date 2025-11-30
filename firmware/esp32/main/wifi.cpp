@@ -71,7 +71,7 @@ static void wifi_init_sta(void) {
 }
 
 void wifiTask(void *pvParameters) {
-    ESP_LOGV(TAG, "Task started");
+    ESP_LOGI(TAG, "Task started");
 
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
@@ -81,4 +81,5 @@ void wifiTask(void *pvParameters) {
         ESP_LOGV(TAG, "Task reset");
         vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_MS));
     }
+    ESP_LOGI(TAG, "Task stopped");
 }

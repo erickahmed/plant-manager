@@ -67,7 +67,7 @@ static void mqtt_init(void) {
 }
 
 void mqttTask(void *pvParameters) {
-    ESP_LOGV(TAG, "Task started");
+    ESP_LOGI(TAG, "Task started");
 
     i2c_task_handle = xTaskGetCurrentTaskHandle();
     mqtt_init();
@@ -92,4 +92,5 @@ void mqttTask(void *pvParameters) {
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
     }
+    ESP_LOGI(TAG, "Task stopped");
 }
