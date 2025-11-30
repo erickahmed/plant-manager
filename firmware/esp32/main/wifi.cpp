@@ -13,7 +13,7 @@
 static const char* TAG = "WIFI";
 const int WIFI_CONNECTED_BIT = BIT0;
 
-EventGroupHandle_t wifi_event_group;
+const int WIFI_CONNECTED_BIT = BIT0;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT) {
@@ -27,7 +27,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
                 wifi_event_sta_disconnected_t* disconn = (wifi_event_sta_disconnected_t*) event_data;
                 ESP_LOGW(TAG, "Disconnected, reason: %d", disconn->reason);
 
-                xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+                xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT);
                 esp_wifi_connect();
                 break;
             }
@@ -38,7 +38,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+        xEventGroupSetBits(connectivity_event_group, WIFI_CONNECTED_BIT);
     }
 }
 
@@ -50,7 +50,7 @@ static void wifi_init_sta(void) {
         ESP_ERROR_CHECK(nvs_flash_init());
     }
 
-    wifi_event_group = xEventGroupCreate();
+    connectivity_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
 

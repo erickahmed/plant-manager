@@ -7,6 +7,8 @@
 #include "esp_task_wdt.h"
 #include "wifi.hpp"
 
+extern EventGroupHandle_t connectivity_event_group;
+
 static const char* TAG = "MAIN";
 
 volatile bool criticalErrorFlag = false;
