@@ -12,8 +12,6 @@
 
 static const char* TAG = "WIFI";
 
-const int WIFI_CONNECTED_BIT = BIT0;
-
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT) {
         switch (event_id) {
@@ -48,8 +46,6 @@ static void wifi_init_sta(void) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ESP_ERROR_CHECK(nvs_flash_init());
     }
-
-    connectivity_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
 

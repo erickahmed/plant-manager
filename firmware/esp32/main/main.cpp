@@ -9,8 +9,7 @@
 
 #define WATCHDOG_KEEPALIVE_MS 8000
 
-extern EventGroupHandle_t connectivity_event_group;
-extern EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
+EventGroupHandle_t connectivity_event_group;
 
 static const char* TAG = "MAIN";
 
@@ -48,6 +47,8 @@ extern "C" void app_main(void)
         .light_sleep_enable = true
     };
     esp_pm_configure(&pm_cfg);
+
+    connectivity_event_group = xEventGroupCreate();
 
     xTaskCreate(watchdogTask, "watchdogs", 2048, NULL, configMAX_PRIORITIES-1, NULL);
     xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);

@@ -14,14 +14,14 @@ static const char* TAG = "MQTT";
 
 static TaskHandle_t i2c_task_handle = NULL;
 static esp_mqtt_client_handle_t mqtt_client = NULL;
-const int MQTT_CONNECTED_BIT = BIT0;
 
 static void mqtt_subscribe(void) {
     msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
 }
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
-    esp_mqtt_event_handle_t event = event_data;
+    esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+
     switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             xEventGroupSetBits(connectivity_event_group, MQTT_CONNECTED_BIT);
@@ -65,8 +65,6 @@ static void mqtt_init(void) {
         esp_mqtt_client_start(client);
 }
 
-void mqtt_publish(void) {}
-
 void mqttTask(void *pvParameters) {
     ESP_LOGV(TAG, "Task started");
 
@@ -79,8 +77,10 @@ void mqttTask(void *pvParameters) {
     for(;;) {
         ESP_LOGV(TAG, "Checking broker connection...");
 
-        if(bits && MQTT_CONNECTED_BIT) {
-            ESP_LOGV(TAG, "Connection estabilished");
+        EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
+
+        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
+            ESP_LOGV(TAG, "Connection established");
 
             uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
             if (task_notification) twi_do(global_rx_buffer); //FIXME: develop i2c libs! (this func should then call mqtt_publish() if needed)
