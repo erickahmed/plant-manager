@@ -7,8 +7,8 @@
 #include "main.hpp"
 #include "i2c.hpp"
 
-#define MQTT_TASK_TIMEOUT_TICKS pdMS_TO_TICKS(3000)
-#define MQTT_TIMEOUT_TICKS pdMS_TO_TICKS(MQTT_TASK_TIMEOUT/2)
+#define MQTT_TASK_TIMEOUT_MS 3000
+#define MQTT_TIMEOUT_MS MQTT_TASK_TIMEOUT_MS/2
 
 static const char* TAG = "MQTT";
 
@@ -82,11 +82,11 @@ void mqttTask(void *pvParameters) {
         if(bits && MQTT_CONNECTED_BIT) {
             ESP_LOGV(TAG, "Connection estabilished");
 
-            uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_TICKS));
+            uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
             if (task_notification) twi_do(global_rx_buffer); //FIXME: develop i2c libs! (this func should then call mqtt_publish() if needed)
         } else {
             ESP_LOGW(TAG, "Waiting for connection...");
-            vTaskDelay(pdMS_TO_TICKS(MQTT_TIMEOUT_TICKS));
+            vTaskDelay(pdMS_TO_TICKS(MQTT_TIMEOUT_MS));
         }
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
