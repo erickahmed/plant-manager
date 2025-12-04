@@ -8,7 +8,6 @@
 #include "i2c.hpp"
 
 #define MQTT_TASK_TIMEOUT_MS 3000
-#define MQTT_TIMEOUT_MS (MQTT_TASK_TIMEOUT_MS / 2)
 
 static const char* TAG = "MQTT";
 
@@ -77,20 +76,16 @@ void mqttTask(void *pvParameters) {
     for(;;) {
         ESP_LOGV(TAG, "Checking broker connection...");
 
-        EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
+        xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
 
-        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
-            ESP_LOGV(TAG, "Connection established");
+        ESP_LOGV(TAG, "Connection established");
 
-            uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
-            if (task_notification) i2c_do(global_rx_buffer);
-            else {
-            ESP_LOGW(TAG, "Waiting for connection...");
-            vTaskDelay(pdMS_TO_TICKS(MQTT_TIMEOUT_MS));
+        if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS))) {
+            i2c_do(global_rx_buffer);
         }
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
-    }
+     }
     ESP_LOGI(TAG, "Task stopped");
 }
