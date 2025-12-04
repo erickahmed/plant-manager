@@ -6,6 +6,7 @@
 #include "esp_pm.h"
 #include "esp_task_wdt.h"
 #include "wifi.hpp"
+#include "mqtt.hpp"
 
 #define WATCHDOG_KEEPALIVE_MS 8000
 

@@ -5,7 +5,7 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 #include "main.hpp"
-#include "i2c.hpp"
+//#include "i2c.hpp"
 
 #define MQTT_TASK_TIMEOUT_MS 3000
 
@@ -24,16 +24,18 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
 
     switch (event->event_id) {
-        case MQTT_EVENT_CONNECTED:
+        case MQTT_EVENT_CONNECTED: {
             xEventGroupSetBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             mqtt_subscribe();
             ESP_LOGV(TAG, "Connected to broker");
             break;
-        case MQTT_EVENT_DISCONNECTED:
+        }
+        case MQTT_EVENT_DISCONNECTED: {
             xEventGroupClearBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             ESP_LOGW(TAG, "Disconnected from broker");
             break;
-        case MQTT_EVENT_DATA:
+        }
+        case MQTT_EVENT_DATA: {
             ESP_LOGD(TAG, "Listening to broker");
             ESP_LOGD(TAG, "Topic: %.*s\n", event->topic_len, event->topic);
             ESP_LOGD(TAG, "Data:  %.*s\n", event->data_len, event->data);
@@ -45,23 +47,22 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
             if (i2c_task_handle != NULL) xTaskNotifyGive(i2c_task_handle);
             break;
-        default:
+        }
+        default: {
             break;
+        }
     }
 }
 
 static void mqtt_init(void) {
     // TODO; implement Trust only or Mutual TLS in the future (and secure boot + flash encryption)
-    const esp_mqtt_client_config_t mqtt_cfg = {
-        .broker = {
-            //TODO: make this a definition in config.hpp
-            .address.uri = "mqtt://yourmqttserver",
-            .address.port = 1883
-        },
-    };
+    // TODO: add to config.h
+    esp_mqtt_client_config_t mqtt_cfg = {};
+    mqtt_cfg.broker.address.uri = "mqtt://yourmqttserver";
+    mqtt_cfg.broker.address.port = 1883;
 
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+    esp_mqtt_client_register_event(mqtt_client, (esp_mqtt_event_id_t)ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(mqtt_client);
 }
 
@@ -81,7 +82,7 @@ void mqttTask(void *pvParameters) {
         ESP_LOGV(TAG, "Connection established");
 
         if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS))) {
-            i2c_do(global_rx_buffer);
+            //i2c_do(global_rx_buffer); PLACEHOLDER FUNC!
         }
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());

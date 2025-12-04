@@ -9,4 +9,4 @@ idf_component_register(SRCS "./main.cpp"
                                 esp_system
                                 freertos
                                 log
-                                mqtt_client)
+                                mqtt)
