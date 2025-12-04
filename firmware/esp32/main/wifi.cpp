@@ -8,7 +8,7 @@
 #include "main.hpp"
 #include "wifi-credentials.h"
 
-#define WIFI_TIMEOUT_MS 4500
+#define WIFI_TIMEOUT_MS 1500
 
 static const char* TAG = "WIFI";
 
@@ -77,6 +77,13 @@ void wifiTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
+        wifi_ap_record_t ap;
+        if (esp_wifi_sta_get_ap_info(&ap) == ESP_OK) {
+            ESP_LOGV(TAG, "RSSI: %d", ap.rssi);
+        }
+
+        //TODO: manage data send rate if with slow network
+
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
         vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_MS));
