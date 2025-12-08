@@ -1,8 +1,10 @@
-#ifndef WIFI_CREDENTIALS_H
-#define WIFI_CREDENTIALS_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define SSID       "your_wifi_ssid"
 #define PASSWORD   "your_wifi_password"
 #define AUTH_MODE  WIFI_AUTH_WPA2_PSK
+#define MQTT_ADDR  "mqtt://yourmqttserver"
+#define MQTT_PORT  1883
 
 #endif

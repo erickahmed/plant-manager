@@ -6,7 +6,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "main.hpp"
-#include "wifi-credentials.h"
+#include "config.h"
 
 #define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(8000)
 
@@ -83,10 +83,16 @@ void wifiTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, WIFI_TIMEOUT_TICKS);
+        wifi_ap_record_t ap;
+        if (esp_wifi_sta_get_ap_info(&ap) == ESP_OK) {
+            ESP_LOGV(TAG, "RSSI: %d", ap.rssi);
+        }
+
+        //TODO: manage data send rate if with slow network
+        // or just let mqtt know (useful for making a notice on home manager)
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGI(TAG, "Wi-Fi task reset");
-        vTaskDelay(pdMS_TO_TICKS(4000));
+        vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_TICKS));
     }
 }
