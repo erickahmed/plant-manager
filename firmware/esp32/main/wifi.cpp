@@ -6,17 +6,19 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "main.hpp"
-#include "wifi-credentials.h"
+#include "config.h"
 
-#define WIFI_TIMEOUT_MS 1500
+#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(8000)
 
 static const char* TAG = "WIFI";
+
+EventGroupHandle_t wifi_event_group;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT) {
         switch (event_id) {
             case WIFI_EVENT_STA_START:
-                ESP_LOGV(TAG, "Process started, connecting...");
+                ESP_LOGI(TAG, "Wi-Fi process started, connecting...");
 
                 esp_wifi_connect();
                 break;
@@ -24,7 +26,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
                 wifi_event_sta_disconnected_t* disconn = (wifi_event_sta_disconnected_t*) event_data;
                 ESP_LOGW(TAG, "Disconnected, reason: %d", disconn->reason);
 
-                xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT);
+                xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
                 esp_wifi_connect();
                 break;
             }
@@ -34,8 +36,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGD(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        xEventGroupSetBits(connectivity_event_group, WIFI_CONNECTED_BIT);
+        ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
 
@@ -46,6 +48,8 @@ static void wifi_init_sta(void) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ESP_ERROR_CHECK(nvs_flash_init());
     }
+
+    wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
 
@@ -71,7 +75,7 @@ static void wifi_init_sta(void) {
 }
 
 void wifiTask(void *pvParameters) {
-    ESP_LOGI(TAG, "Task started");
+    ESP_LOGI(TAG, "WiFi task started");
 
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
@@ -83,10 +87,10 @@ void wifiTask(void *pvParameters) {
         }
 
         //TODO: manage data send rate if with slow network
+        // or just let mqtt know (useful for making a notice on home manager)
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
-        ESP_LOGV(TAG, "Task reset");
-        vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_MS));
+        ESP_LOGI(TAG, "Wi-Fi task reset");
+        vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_TICKS));
     }
-    ESP_LOGI(TAG, "Task stopped");
 }
