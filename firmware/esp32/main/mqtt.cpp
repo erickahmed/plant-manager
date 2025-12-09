@@ -12,7 +12,6 @@
 
 static const char* TAG = "MQTT";
 
-//static TaskHandle_t i2c_task_handle = NULL;
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 
 static char global_rx_buffer[50];
