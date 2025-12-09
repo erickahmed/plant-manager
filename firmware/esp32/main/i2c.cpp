@@ -14,6 +14,8 @@
 
 static const char* TAG = "I2C";
 
+TaskHandle_t i2c_task_handle = NULL;
+
 i2c_master_bus_handle_t bus_handle;
 i2c_master_dev_handle_t slave_handles[SLAVES_NUMBER];
 uint8_t slave_count = 0;
