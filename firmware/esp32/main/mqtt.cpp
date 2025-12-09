@@ -45,8 +45,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
             memcpy(global_rx_buffer, event->data, len);
             global_rx_buffer[len] = '\0';
-
-            //if(i2c_task_handle != NULL) xTaskNotifyGive(i2c_task_handle);
             break;
         }
 
