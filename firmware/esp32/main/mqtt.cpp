@@ -70,6 +70,10 @@ static void mqtt_init(void) {
     mqtt_cfg.credentials.authentication.password = MQTT_PASS;
 
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    if(mqtt_client == NULL) {
+        ESP_LOGE(TAG, "esp_mqtt_client_init returned NULL");
+        criticalErrorFlag = true;
+    }
 
     esp_mqtt_client_register_event(mqtt_client, (esp_mqtt_event_id_t)ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 
