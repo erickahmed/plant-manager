@@ -24,7 +24,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
                 wifi_event_sta_disconnected_t* disconn =(wifi_event_sta_disconnected_t*) event_data;
                 ESP_LOGW(TAG, "Disconnected, reason: %d", disconn->reason);
 
-                xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT);
+                xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT);
 
                 esp_wifi_connect();
                 break;
