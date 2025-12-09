@@ -50,6 +50,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             break;
         }
 
+        case MQTT_EVENT_ERROR:
+            ESP_LOGE(TAG, "Error event");
+            if(event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) ESP_LOGE(TAG, "Network Error: %s", strerror(event->error_handle->esp_transport_sock_errno));
+            else if(event->error_handle->error_type == MQTT_ERROR_TYPE_CONNECTION_REFUSED) ESP_LOGE(TAG, "Connection Refused! Reason code: 0x%x", event->error_handle->connect_return_code);
+            break;
+
         default:
             break;
     }
