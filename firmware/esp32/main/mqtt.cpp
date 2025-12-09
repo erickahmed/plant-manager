@@ -6,6 +6,7 @@
 #include "mqtt_client.h"
 #include "main.hpp"
 //#include "i2c.hpp"
+#include "config-erick.h"
 
 #define MQTT_TASK_TIMEOUT_MS 3000
 
@@ -16,7 +17,7 @@ static esp_mqtt_client_handle_t mqtt_client = NULL;
 
 static char global_rx_buffer[50];
 
-static inline void mqtt_subscribe(void) {
+static void mqtt_subscribe(void) {
     esp_mqtt_client_subscribe(mqtt_client, "/topic/qos0", 0);
 }
 
@@ -24,52 +25,56 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
 
     switch (event->event_id) {
-        case MQTT_EVENT_CONNECTED: {
+        case MQTT_EVENT_CONNECTED:
             xEventGroupSetBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             mqtt_subscribe();
             ESP_LOGV(TAG, "Connected to broker");
             break;
-        }
-        case MQTT_EVENT_DISCONNECTED: {
+
+        case MQTT_EVENT_DISCONNECTED:
             xEventGroupClearBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             ESP_LOGW(TAG, "Disconnected from broker");
             break;
-        }
-        case MQTT_EVENT_DATA: {
-            ESP_LOGD(TAG, "Listening to broker");
-            ESP_LOGD(TAG, "Topic: %.*s\n", event->topic_len, event->topic);
-            ESP_LOGD(TAG, "Data:  %.*s\n", event->data_len, event->data);
+
+        case MQTT_EVENT_DATA:
+        {
+            ESP_LOGD(TAG, "Data received");
 
             int len = event->data_len;
             if (len > sizeof(global_rx_buffer) - 1) len = sizeof(global_rx_buffer) - 1;
+
             memcpy(global_rx_buffer, event->data, len);
             global_rx_buffer[len] = '\0';
 
             if (i2c_task_handle != NULL) xTaskNotifyGive(i2c_task_handle);
             break;
         }
-        default: {
+
+        default:
             break;
-        }
     }
 }
 
 static void mqtt_init(void) {
-    // TODO; implement Trust only or Mutual TLS in the future (and secure boot + flash encryption)
-    // TODO: add to config.h
     esp_mqtt_client_config_t mqtt_cfg = {};
-    mqtt_cfg.broker.address.uri = "mqtt://yourmqttserver";
-    mqtt_cfg.broker.address.port = 1883;
+
+    mqtt_cfg.broker.address.uri = MQTT_ADDR;
+    mqtt_cfg.broker.address.port = MQTT_PORT;
 
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+
     esp_mqtt_client_register_event(mqtt_client, (esp_mqtt_event_id_t)ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+
     esp_mqtt_client_start(mqtt_client);
 }
 
+void mqtt_publish(void) {}
+
 void mqttTask(void *pvParameters) {
-    ESP_LOGI(TAG, "Task started");
+    ESP_LOGV(TAG, "Task started");
 
     i2c_task_handle = xTaskGetCurrentTaskHandle();
+
     mqtt_init();
 
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
@@ -77,16 +82,22 @@ void mqttTask(void *pvParameters) {
     for(;;) {
         ESP_LOGV(TAG, "Checking broker connection...");
 
-        xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+        EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
 
-        ESP_LOGV(TAG, "Connection established");
+        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
 
-        if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS))) {
-            //i2c_do(global_rx_buffer); PLACEHOLDER FUNC!
+            ESP_LOGV(TAG, "Connection established");
+
+            uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
+
+            if (task_notification) {} //{twi_do(global_rx_buffer)}
+
+        } else {
+            ESP_LOGW(TAG, "Waiting for connection...");
+            vTaskDelay(pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS/2));
         }
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
-     }
-    ESP_LOGI(TAG, "Task stopped");
+    }
 }
