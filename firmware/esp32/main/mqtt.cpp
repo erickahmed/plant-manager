@@ -92,18 +92,14 @@ void mqttTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
+        ESP_LOGV(TAG, "Checking connection...");
+        xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
 
-        if((bits &(WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) ==(WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
-            ESP_LOGV(TAG, "Connection established");
+        ESP_LOGV(TAG, "Connection present");
 
-            uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
+        uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
 
-            if(task_notification) {} //{twi_do(global_rx_buffer)}
-        } else {
-            ESP_LOGW(TAG, "Waiting for connection...");
-            vTaskDelay(pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS/2));
-        }
+        if(task_notification) {} //{twi_do(global_rx_buffer)}
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
