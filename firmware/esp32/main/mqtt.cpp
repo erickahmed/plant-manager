@@ -92,8 +92,6 @@ void mqttTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        ESP_LOGV(TAG, "Checking broker connection...");
-
         EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
 
         if((bits &(WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) ==(WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
