@@ -91,13 +91,15 @@ void mqttTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        ESP_LOGV(TAG, "Checking connection...");
-        xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-        ESP_LOGV(TAG, "Connection present");
+        ESP_LOGV(TAG, "Checking Wi-Fi connection...");
+        EventBits_t bits = xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
 
-        uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
+        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
+            ESP_LOGV(TAG, "Wi-Fi and MQTT up");
 
-        if(task_notification) {} //{twi_do(global_rx_buffer)}
+
+
+        } else ESP_LOGV(TAG, "Wi-Fi or MQTT down");
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
