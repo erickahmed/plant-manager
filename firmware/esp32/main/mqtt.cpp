@@ -12,7 +12,7 @@
 
 static const char* TAG = "MQTT";
 
-static TaskHandle_t i2c_task_handle = NULL;
+//static TaskHandle_t i2c_task_handle = NULL;
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 
 static char global_rx_buffer[50];
@@ -46,7 +46,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             memcpy(global_rx_buffer, event->data, len);
             global_rx_buffer[len] = '\0';
 
-            if (i2c_task_handle != NULL) xTaskNotifyGive(i2c_task_handle);
+            //if(i2c_task_handle != NULL) xTaskNotifyGive(i2c_task_handle);
             break;
         }
 
@@ -73,7 +73,7 @@ void mqtt_publish(void) {}
 void mqttTask(void *pvParameters) {
     ESP_LOGV(TAG, "Task started");
 
-    i2c_task_handle = xTaskGetCurrentTaskHandle();
+    //i2c_task_handle = xTaskGetCurrentTaskHandle();
 
     mqtt_init();
 
