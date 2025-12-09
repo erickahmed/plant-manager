@@ -66,6 +66,8 @@ static void mqtt_init(void) {
 
     mqtt_cfg.broker.address.uri = MQTT_ADDR;
     mqtt_cfg.broker.address.port = MQTT_PORT;
+    mqtt_cfg.credentials.username = MQTT_USER;
+    mqtt_cfg.credentials.authentication.password = MQTT_PASS;
 
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
 
