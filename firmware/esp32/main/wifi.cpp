@@ -13,15 +13,15 @@
 static const char* TAG = "WIFI";
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
-    if (event_base == WIFI_EVENT) {
-        switch (event_id) {
+    if(event_base == WIFI_EVENT) {
+        switch(event_id) {
             case WIFI_EVENT_STA_START:
                 ESP_LOGV(TAG, "Process started, connecting...");
                 esp_wifi_connect();
                 break;
 
             case WIFI_EVENT_STA_DISCONNECTED: {
-                wifi_event_sta_disconnected_t* disconn = (wifi_event_sta_disconnected_t*) event_data;
+                wifi_event_sta_disconnected_t* disconn =(wifi_event_sta_disconnected_t*) event_data;
                 ESP_LOGW(TAG, "Disconnected, reason: %d", disconn->reason);
 
                 xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT);
@@ -33,8 +33,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
                 break;
         }
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+    else if(event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event =(ip_event_got_ip_t*) event_data;
         ESP_LOGD(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
         xEventGroupSetBits(connectivity_event_group, WIFI_CONNECTED_BIT);
@@ -44,7 +44,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
 static void wifi_init_sta(void) {
     esp_err_t nvs_err = nvs_flash_init();
 
-    if (nvs_err == ESP_ERR_NVS_NO_FREE_PAGES || nvs_err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if(nvs_err == ESP_ERR_NVS_NO_FREE_PAGES || nvs_err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ESP_ERROR_CHECK(nvs_flash_init());
     }

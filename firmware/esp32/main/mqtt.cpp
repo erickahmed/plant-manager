@@ -22,9 +22,9 @@ static void mqtt_subscribe(void) {
 }
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
-    esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+    esp_mqtt_event_handle_t event =(esp_mqtt_event_handle_t)event_data;
 
-    switch (event->event_id) {
+    switch(event->event_id) {
         case MQTT_EVENT_CONNECTED:
             xEventGroupSetBits(connectivity_event_group, MQTT_CONNECTED_BIT);
             mqtt_subscribe();
@@ -41,7 +41,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             ESP_LOGD(TAG, "Data received");
 
             int len = event->data_len;
-            if (len > sizeof(global_rx_buffer) - 1) len = sizeof(global_rx_buffer) - 1;
+            if(len > sizeof(global_rx_buffer) - 1) len = sizeof(global_rx_buffer) - 1;
 
             memcpy(global_rx_buffer, event->data, len);
             global_rx_buffer[len] = '\0';
@@ -96,14 +96,12 @@ void mqttTask(void *pvParameters) {
 
         EventBits_t bits = xEventGroupGetBits(connectivity_event_group);
 
-        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
-
+        if((bits &(WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) ==(WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
             ESP_LOGV(TAG, "Connection established");
 
             uint32_t task_notification = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS));
 
-            if (task_notification) {} //{twi_do(global_rx_buffer)}
-
+            if(task_notification) {} //{twi_do(global_rx_buffer)}
         } else {
             ESP_LOGW(TAG, "Waiting for connection...");
             vTaskDelay(pdMS_TO_TICKS(MQTT_TASK_TIMEOUT_MS/2));

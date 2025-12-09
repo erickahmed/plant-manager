@@ -28,7 +28,7 @@ static void watchdogTask(void *pvParameters) {
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        if (criticalErrorFlag) {
+        if(criticalErrorFlag) {
             ESP_LOGE(TAG, "Critical error flag raised. Rebooting.");
             esp_restart();
         }
