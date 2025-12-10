@@ -1,16 +1,11 @@
 #include <stdint.h>
 #include "driver/i2c_master.h"
 #include "esp_log.h"
+#include "config.h"
 
 // ESP32-C3 Super Mini, change this ports for other versions
 #define I2C_MASTER_SCL_IO 9
 #define I2C_MASTER_SDA_IO 8
-
-// TODO: put this in a config.hpp
-// Change based on how many vases max to manage [1 to ~100]
-// larger number will require larger array
-// see limitation on AVR addresses for TWI
-#define SLAVES_NUMBER 32
 
 static const char* TAG = "I2C";
 
@@ -44,7 +39,7 @@ static void i2c_init(void) {
     ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
     // Add all vases adresses here:
-    // TODO: move this to a config.cpp
+    // TODO: move this to config.h
     register_slave(0x30);
 }
 
