@@ -7,6 +7,11 @@
 #include "esp_task_wdt.h"
 #include "wifi.hpp"
 #include "i2c.cpp"
+#include "mqtt.hpp"
+
+#define WATCHDOG_KEEPALIVE_MS 8000
+
+EventGroupHandle_t connectivity_event_group;
 
 static const char* TAG = "MAIN";
 
@@ -23,18 +28,16 @@ static void watchdogTask(void *pvParameters) {
 
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
-    const TickType_t keepAlivePeriod = pdMS_TO_TICKS(8000);
-
     for(;;) {
-        if (criticalErrorFlag) {
+        if(criticalErrorFlag) {
             ESP_LOGE(TAG, "Critical error flag raised. Rebooting.");
             esp_restart();
         }
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
-        ESP_LOGI(TAG, "WDT reset");
+        ESP_LOGV(TAG, "WDT reset");
 
-        vTaskDelay(keepAlivePeriod);
+        vTaskDelay(pdMS_TO_TICKS(WATCHDOG_KEEPALIVE_MS));
     }
 }
 
@@ -47,7 +50,10 @@ extern "C" void app_main(void)
     };
     esp_pm_configure(&pm_cfg);
 
+    connectivity_event_group = xEventGroupCreate();
+
     xTaskCreate(watchdogTask, "watchdogs", 2048, NULL, configMAX_PRIORITIES-1, NULL);
     xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);
     xTaskCreate(i2cTask, "i2c", 1024, NULL, configMAX_PRIORITIES-6, &i2c_task_handle);
+    xTaskCreate(mqttTask, "mqtt", 2048, NULL, configMAX_PRIORITIES-8, NULL);
 }

@@ -6,28 +6,26 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "main.hpp"
-#include "wifi-credentials.h"
+#include "config-erick.h"
 
-#define WIFI_TIMEOUT_TICKS pdMS_TO_TICKS(8000)
+#define WIFI_TIMEOUT_MS 4500
 
 static const char* TAG = "WIFI";
-const int WIFI_CONNECTED_BIT = BIT0;
-
-EventGroupHandle_t wifi_event_group;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
-    if (event_base == WIFI_EVENT) {
-        switch (event_id) {
+    if(event_base == WIFI_EVENT) {
+        switch(event_id) {
             case WIFI_EVENT_STA_START:
-                ESP_LOGI(TAG, "Wi-Fi process started, connecting...");
-
+                ESP_LOGV(TAG, "Process started, connecting...");
                 esp_wifi_connect();
                 break;
+
             case WIFI_EVENT_STA_DISCONNECTED: {
-                wifi_event_sta_disconnected_t* disconn = (wifi_event_sta_disconnected_t*) event_data;
+                wifi_event_sta_disconnected_t* disconn =(wifi_event_sta_disconnected_t*) event_data;
                 ESP_LOGW(TAG, "Disconnected, reason: %d", disconn->reason);
 
-                xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+                xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT);
+
                 esp_wifi_connect();
                 break;
             }
@@ -35,26 +33,23 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
                 break;
         }
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    else if(event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event =(ip_event_got_ip_t*) event_data;
+        ESP_LOGD(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+
+        xEventGroupSetBits(connectivity_event_group, WIFI_CONNECTED_BIT);
     }
 }
-
 
 static void wifi_init_sta(void) {
     esp_err_t nvs_err = nvs_flash_init();
 
-    if (nvs_err == ESP_ERR_NVS_NO_FREE_PAGES || nvs_err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if(nvs_err == ESP_ERR_NVS_NO_FREE_PAGES || nvs_err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ESP_ERROR_CHECK(nvs_flash_init());
     }
 
-    wifi_event_group = xEventGroupCreate();
-
     ESP_ERROR_CHECK(esp_netif_init());
-
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     esp_netif_create_default_wifi_sta();
@@ -77,16 +72,14 @@ static void wifi_init_sta(void) {
 }
 
 void wifiTask(void *pvParameters) {
-    ESP_LOGI(TAG, "WiFi task started");
+    ESP_LOGV(TAG, "Task started");
 
     wifi_init_sta();
     ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
     for(;;) {
-        EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, WIFI_TIMEOUT_TICKS);
-
         ESP_ERROR_CHECK(esp_task_wdt_reset());
-        ESP_LOGI(TAG, "Wi-Fi task reset");
-        vTaskDelay(pdMS_TO_TICKS(4000));
+        ESP_LOGV(TAG, "Task reset");
+        vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_MS));
     }
 }

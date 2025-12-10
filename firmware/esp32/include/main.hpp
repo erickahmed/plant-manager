@@ -1,9 +1,13 @@
-   #ifdef __cplusplus
-   extern "C" {
-   #endif
+   #ifndef MAIN_HPP
+   #define MAIN_HPP
+
+   #include "freertos/FreeRTOS.h"
+   #include "freertos/event_groups.h"
 
    extern volatile bool criticalErrorFlag;
+   extern EventGroupHandle_t connectivity_event_group;
 
-   #ifdef __cplusplus
-   }
+   #define WIFI_CONNECTED_BIT BIT0
+   #define MQTT_CONNECTED_BIT BIT1
+
    #endif
