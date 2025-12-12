@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-IMAGE_NAME="vase-control-builder"
+IMAGE_NAME="plant-thing-atmega-builder"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 IMAGE_NAME="vase-control-builder"
 DOCKERFILE="$SCRIPT_DIR/Dockerfile"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-IMAGE_NAME="esp32-builder"
+IMAGE_NAME="plant-thing-esp32-builder"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOCKERFILE="$SCRIPT_DIR/Dockerfile"
 BUILD_CTX="$SCRIPT_DIR"
