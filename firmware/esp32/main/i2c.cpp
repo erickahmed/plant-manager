@@ -3,6 +3,8 @@
 #include "esp_log.h"
 #include "config.h"
 
+#define I2C_TASK_TIMEOUT_MS 4500
+
 // ESP32-C3 Super Mini, change this ports for other versions
 #define I2C_MASTER_SCL_IO 9
 #define I2C_MASTER_SDA_IO 8
@@ -34,7 +36,7 @@ static void i2c_init(void) {
     .sda_io_num = I2C_MASTER_SDA_IO,
     .glitch_ignore_cnt = 7,
     .flags.enable_internal_pullup = true,
-};
+    };
 
     ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
@@ -51,10 +53,10 @@ void i2cTask(void *pvParameters) {
     i2c_init();
 
     for(;;) {
-        ESP_LOGV(TAG, "Checking Wi-Fi connection...");
-        //FIXME: change wifi_event_group to connectivity_event_group after merge with dev-esp32-mqtt branch
-        xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+        ESP_LOGV(TAG, "Checking Wi-Fi & MQTT connection...");
 
+        //FIXME URGENT: instead of event group use event notification!! if notif then i2c_read (no notif=stopped)
+        EventBits_t bits = xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(I2C_TASK_TIMEOUT_MS));
         if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) i2c_read();
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
