@@ -45,4 +45,4 @@ RUN rm -rf build && /bin/bash -c "source $IDF_PATH/export.sh && idf.py set-targe
 RUN mkdir -p /usr/src/build && \
     cp build/bootloader/bootloader.bin /usr/src/build/ && \
     cp build/partition_table/partition-table.bin /usr/src/build/ && \
-    cp build/plant-manager.bin /usr/src/build/
+    cp build/plant-thing.bin /usr/src/build/

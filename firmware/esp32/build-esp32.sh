@@ -22,6 +22,6 @@ esptool --chip esp32c3 --port /dev/tty.usbmodem101 --baud 115200 write-flash \
   --flash-size 4MB \
   0x0000 "$DEST_DIR/bootloader.bin" \
   0x8000 "$DEST_DIR/partition-table.bin" \
-  0x10000 "$DEST_DIR/plant-manager.bin"
+  0x10000 "$DEST_DIR/plant-thing.bin"
 
 screen -fn /dev/tty.usbmodem101 115200
