@@ -1,12 +1,15 @@
-   #ifndef MAIN_HPP
-   #define MAIN_HPP
+#ifndef MAIN_HPP
+#define MAIN_HPP
 
 #pragma once
 
-   extern volatile bool criticalErrorFlag;
-   extern EventGroupHandle_t connectivity_event_group;
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
 
-   #define WIFI_CONNECTED_BIT BIT0
-   #define MQTT_CONNECTED_BIT BIT1
+extern volatile bool criticalErrorFlag;
+extern EventGroupHandle_t connectivity_event_group;
 
-   #endif
+#define WIFI_CONNECTED_BIT BIT0
+#define MQTT_CONNECTED_BIT BIT1
+
+#endif
