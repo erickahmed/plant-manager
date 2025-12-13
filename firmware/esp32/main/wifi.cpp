@@ -6,7 +6,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "main.hpp"
-#include "config-erick.h"
+#include "config.h"
 
 #define WIFI_TIMEOUT_MS 4500
 
@@ -27,6 +27,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
                 xEventGroupClearBits(connectivity_event_group, WIFI_CONNECTED_BIT);
 
                 esp_wifi_connect();
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 break;
             }
             default:
@@ -82,4 +83,5 @@ void wifiTask(void *pvParameters) {
         ESP_LOGV(TAG, "Task reset");
         vTaskDelay(pdMS_TO_TICKS(WIFI_TIMEOUT_MS));
     }
+    ESP_LOGW(TAG, "Task exited");
 }
