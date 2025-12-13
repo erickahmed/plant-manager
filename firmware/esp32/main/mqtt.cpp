@@ -14,6 +14,7 @@
 #include <cstdint>
 
 #define MQTT_TASK_TIMEOUT_MS 3000
+#define DEFAULT_SLAVE_ADDR 0x30
 
 static const char* TAG = "MQTT";
 
