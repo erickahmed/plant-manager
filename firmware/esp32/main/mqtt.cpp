@@ -97,8 +97,50 @@ void mqttTask(void *pvParameters) {
         if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) {
             ESP_LOGV(TAG, "Wi-Fi and MQTT up");
 
+            uint8_t params[3] = {0};
+            uint8_t param_len = 0;
 
+            uint8_t i2c_cmd = 0;
+            uint8_t slave_addr = DEFAULT_SLAVE_ADDR;
 
+            char *action = strtok(rx_buffer, ":");
+            char *target = strtok(NULL, ":");
+            char *value  = strtok(NULL, ":");
+            char *slave  = strtok(NULL, ":");
+
+            if(slave) slave_addr = (uint8_t)strtol(slave, NULL, 0);
+
+            if(action && target) {
+                if (strcmp(action, "READ") == 0) {
+                    if (strcmp(target, "moisture") == 0) i2c_cmd = CMD_GET_MOISTURE;
+                    else if (strcmp(target, "eeprom") == 0 && value) {
+                        if (strcmp(value, "sensor_reads") == 0) i2c_cmd = CMD_GET_SENSOR_READS;
+                        else if (strcmp(value, "moisture_min") == 0) i2c_cmd = CMD_GET_MOISTURE_MIN;
+                        else if (strcmp(value, "moisture_max") == 0) i2c_cmd = CMD_GET_MOISTURE_MAX;
+                    }
+                } else if (strcmp(action, "WRITE") == 0) {
+                    if (strcmp(target, "force") == 0) i2c_cmd = CMD_FORCE_PUMP;
+                    else if (strcmp(target, "eeprom") == 0 && value) {
+                        if (strncmp(value, "params:", 7) == 0) {
+                            sscanf(value + 7, "%hhu,%hhu,%hhu", &params[0], &params[1], &params[2]);
+                            i2c_cmd = CMD_SET_PARAMS;
+                            param_len = 3;
+                        }
+                        else {
+                            uint8_t v = (uint8_t)atoi(value);
+
+                            if (strcmp(value, "sensor_reads") == 0) {
+                                i2c_cmd = CMD_SET_SENSOR_READS;
+                                params[0] = v;
+                                param_len = 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            uint32_t packet = (i2c_cmd<<24) | (slave_addr<<16) | params[0];
+            xTaskNotify(i2c_task, packet, eSetValueWithOverwrite);
         } else ESP_LOGV(TAG, "Wi-Fi or MQTT down");
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
