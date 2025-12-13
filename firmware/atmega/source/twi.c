@@ -35,53 +35,50 @@ static void twiSendData(uint8_t data) {
 }
 
 void twiRespond(void) {
-    if(respondFlag) {
-        switch(twiBuffer[0]) {
-            case 0x01: // Get moisture
-                twiSendData(*pLastMoistureVal);
-                break;
-            case 0x02: // Get SENSOR_READINGS
-                twiSendData(eepromRead(SENSOR_READINGS));
-                break;
-            case 0x03: // Get MOISTURE_MIN
-                twiSendData(eepromRead(MOISTURE_MIN));
-                break;
-            case 0x04: // Get MOISTURE_MAX
-                twiSendData(eepromRead(MOISTURE_MAX));
-                break;
-            case 0x05: // Set SENSOR_READINGS
-                eepromWrite(SENSOR_READINGS, twiBuffer[1]);
-                twiSendAck();
-                break;
-            case 0x06: // Set parameters
-                eepromWrite(MOISTURE_MIN, twiBuffer[1]);
-                eepromWrite(MOISTURE_MAX, twiBuffer[2]);
-                eepromWrite(SENSOR_READINGS, twiBuffer[3]);
-                twiSendAck();
-                break;
-            case 0x07: // Force water plants (one pumping)
-                waterPlant();
-                twiSendAck();
-                break;
-            default:
-                twiSendNack();
-                break;
-        }
+    if (!respondFlag) return;
+
+    uint8_t cmd   = twiBuffer[0];
+    uint8_t param = twiBuffer[1];
+
+    switch(cmd) {
+        // READ
+        case 0x01:
+            twiSendData(*pLastMoistureVal);
+            break;
+        case 0x02:
+            twiSendData(eepromRead(SENSOR_READINGS));
+            break;
+        case 0x03:
+            twiSendData(eepromRead(MOISTURE_MIN));
+            break;
+        case 0x04:
+            twiSendData(eepromRead(MOISTURE_MAX));
+            break;
+        // WRITE
+        case 0x05:
+            eepromWrite(SENSOR_READINGS, param);
+            twiSendAck();
+            break;
+        case 0x06:
+            eepromWrite(MOISTURE_MIN, param);
+            twiSendAck();
+            break;
+        case 0x07:
+            eepromWrite(MOISTURE_MAX, param);
+            twiSendAck();
+            break;
+        case 0x08:
+            waterPlant();
+            twiSendAck();
+            break;
+        default:
+            twiSendNack();
+            break;
     }
 }
 
+
 void twiListen(void) {
-
-    /*
-        HOW TO SPEAK MASTER'S LANGUAGE:
-            Message is saved bit per bit on a buffer array like this:
-            [ message, param0, param1, param2 ]
-
-            So when parsing:
-            buffer[0] is the message itself
-            buffer[1] to buffer[3] are parameters
-    */
-
     switch (TWSR & 0xF8) {
         case 0x60: // SLA+W received
             bufferIndex = 0;
