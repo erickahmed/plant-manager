@@ -1,8 +1,7 @@
    #ifndef MAIN_HPP
    #define MAIN_HPP
 
-   #include "freertos/FreeRTOS.h"
-   #include "freertos/event_groups.h"
+#pragma once
 
    extern volatile bool criticalErrorFlag;
    extern EventGroupHandle_t connectivity_event_group;

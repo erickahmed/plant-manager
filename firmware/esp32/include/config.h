@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#pragma once
+
 // WI-FI
 #define SSID       "your_wifi_ssid"
 #define PASSWORD   "your_wifi_password"
