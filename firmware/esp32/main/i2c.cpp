@@ -7,17 +7,19 @@
 #include "esp_task_wdt.h"
 #include "driver/i2c_master.h"
 #include "esp_log.h"
-#include "config.h"
+#include "config-erick.h"
 
 #define I2C_TASK_TIMEOUT_MS 4500
 
-// ESP32-C3 Super Mini, change this ports for other versions
-#define I2C_MASTER_SCL_IO 9
-#define I2C_MASTER_SDA_IO 8
+// for ESP32-C3
+#define I2C_MASTER_SCL_IO ((gpio_num_t)9)
+#define I2C_MASTER_SDA_IO ((gpio_num_t)8)
+
+#define DATA_LENGTH 100
 
 static const char* TAG = "I2C";
 
-TaskHandle_t i2c_task_handle = NULL;
+TaskHandle_t i2c_task = NULL;
 
 i2c_master_bus_handle_t bus_handle;
 static i2c_master_dev_handle_t slave_handles[SLAVES_NUMBER];
@@ -84,18 +86,15 @@ static void i2c_send(uint32_t packet) {
 }
 
 void i2cTask(void *pvParameters) {
-    ESP_LOGV(TAG, "Task started");
     i2c_init();
+    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 
+    uint32_t packet;
     for(;;) {
-        ESP_LOGV(TAG, "Checking Wi-Fi & MQTT connection...");
-
-        //FIXME URGENT: instead of event group use event notification!! if notif then i2c_read (no notif=stopped)
-        EventBits_t bits = xEventGroupWaitBits(connectivity_event_group, WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(I2C_TASK_TIMEOUT_MS));
-        if ((bits & (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) == (WIFI_CONNECTED_BIT | MQTT_CONNECTED_BIT)) i2c_read();
-
+        if(xTaskNotifyWait(0, 0, &packet, pdMS_TO_TICKS(I2C_TASK_TIMEOUT_MS)) == pdPASS) {
+            i2c_send(packet);
+        }
         ESP_ERROR_CHECK(esp_task_wdt_reset());
-        ESP_LOGV(TAG, "Task reset");
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        vTaskDelay(pdMS_TO_TICKS(150));
     }
 }
