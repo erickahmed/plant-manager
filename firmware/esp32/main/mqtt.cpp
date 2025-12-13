@@ -1,12 +1,17 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 #include "esp_task_wdt.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "stdlib.h"
+#include "string.h"
 #include "mqtt_client.h"
 #include "main.hpp"
-//#include "i2c.hpp"
-#include "config-erick.h"
+#include "i2c.hpp"
+#include "config.h"
+#include <cstdint>
 
 #define MQTT_TASK_TIMEOUT_MS 3000
 
