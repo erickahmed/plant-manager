@@ -20,18 +20,19 @@ static const char* TAG = "I2C";
 TaskHandle_t i2c_task_handle = NULL;
 
 i2c_master_bus_handle_t bus_handle;
-i2c_master_dev_handle_t slave_handles[SLAVES_NUMBER];
+static i2c_master_dev_handle_t slave_handles[SLAVES_NUMBER];
 uint8_t slave_count = 0;
+uint8_t slave_addrs[SLAVES_NUMBER];
 
-static void register_slave(int addr) {
-    i2c_device_config_t slave_dev_cfg = {
-        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = addr,
-        .scl_speed_hz = 100000, // 100kHz or 400kHz
-    };
+uint8_t data_rd[DATA_LENGTH];
 
+static void register_slave(uint8_t addr) {
+    i2c_device_config_t slave_dev_cfg = {};
+    slave_dev_cfg.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    slave_dev_cfg.device_address = addr;
+    slave_dev_cfg.scl_speed_hz = 100000;
     ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &slave_dev_cfg, &slave_handles[slave_count]));
-    slave_count++;
+    slave_addrs[slave_count++] = addr;
 }
 
 static void i2c_init(void) {
