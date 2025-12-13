@@ -144,10 +144,9 @@ void mqttTask(void *pvParameters) {
                     }
                 }
             }
-
             uint32_t packet = (i2c_cmd<<24) | (slave_addr<<16) | params[0];
             xTaskNotify(i2c_task, packet, eSetValueWithOverwrite);
-        } else ESP_LOGV(TAG, "Wi-Fi or MQTT down");
+        } else ESP_LOGW(TAG, "Wi-Fi or MQTT down");
 
         ESP_ERROR_CHECK(esp_task_wdt_reset());
         ESP_LOGV(TAG, "Task reset");
