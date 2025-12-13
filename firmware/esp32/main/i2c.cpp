@@ -1,4 +1,10 @@
+#include <cstdint>
 #include <stdint.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "esp_task_wdt.h"
 #include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "config.h"
