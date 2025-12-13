@@ -50,8 +50,38 @@ static void i2c_init(void) {
     register_slave(0x31);
 }
 
-static void i2c_read() {} //should read from i2c and if necessary call i2c_write
-static void i2c_write() {}
+static void i2c_send(uint32_t packet) {
+    uint8_t cmd = (packet >> 24) & 0xFF;
+    uint8_t slave_addr = (packet >> 16) & 0xFF;
+    uint8_t param = packet & 0xFF;
+
+    i2c_master_dev_handle_t dev = NULL;
+    for(uint8_t i = 0; i < slave_count; i++) {
+        if(slave_addrs[i] == slave_addr) {
+            dev = slave_handles[i];
+            break;
+        }
+    }
+    if(!dev) { ESP_LOGE(TAG,"Slave 0x%02X not found", slave_addr); return; }
+
+    uint8_t tx[2] = {cmd, param};
+    esp_err_t err;
+    switch(cmd) {
+        case CMD_GET_MOISTURE:
+        case CMD_GET_SENSOR_READS:
+        case CMD_GET_MOISTURE_MIN:
+        case CMD_GET_MOISTURE_MAX: {
+            uint8_t rx;
+            err = i2c_master_transmit_receive(dev, tx, 2, &rx, 1, 250);
+            if(err == ESP_OK) ESP_LOGI(TAG,"I2C READ cmd=0x%02X val=%u", cmd, rx);
+            break;
+        }
+        default:
+            err = i2c_master_transmit(dev, tx, 2, 250);
+            break;
+    }
+    if(err != ESP_OK) ESP_LOGE(TAG,"I2C transaction failed: %s", esp_err_to_name(err));
+}
 
 void i2cTask(void *pvParameters) {
     ESP_LOGV(TAG, "Task started");
