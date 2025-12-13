@@ -14,10 +14,11 @@ static const char* TAG = "MQTT";
 
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 
-static char global_rx_buffer[50];
+static char rx_buffer[50];
 
 static void mqtt_subscribe(void) {
-    esp_mqtt_client_subscribe(mqtt_client, "/topic/qos0", 0);
+    esp_mqtt_client_subscribe(mqtt_client, "/plant/moisture/qos0", 0);
+    esp_mqtt_client_subscribe(mqtt_client, "/plant/humidity/qos0", 0);
 }
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
@@ -26,8 +27,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     switch(event->event_id) {
         case MQTT_EVENT_CONNECTED:
             xEventGroupSetBits(connectivity_event_group, MQTT_CONNECTED_BIT);
-            mqtt_subscribe();
             ESP_LOGV(TAG, "Connected to broker");
+            mqtt_subscribe();
+            ESP_LOGV(TAG, "Subscribed to topic");
             break;
 
         case MQTT_EVENT_DISCONNECTED:
