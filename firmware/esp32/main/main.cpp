@@ -54,6 +54,6 @@ extern "C" void app_main(void)
 
     xTaskCreate(watchdogTask, "watchdogs", 2048, NULL, configMAX_PRIORITIES-1, NULL);
     xTaskCreate(wifiTask, "wifi", 4096, NULL, configMAX_PRIORITIES-4, NULL);
-    xTaskCreate(i2cTask, "i2c", 1024, NULL, configMAX_PRIORITIES-6, &i2c_task_handle);
+    xTaskCreate(i2cTask, "i2c", 4096, NULL, configMAX_PRIORITIES-6, &i2c_task);
     xTaskCreate(mqttTask, "mqtt", 2048, NULL, configMAX_PRIORITIES-8, NULL);
 }
