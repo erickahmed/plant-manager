@@ -42,10 +42,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             ESP_LOGD(TAG, "Data received");
 
             int len = event->data_len;
-            if(len > sizeof(global_rx_buffer) - 1) len = sizeof(global_rx_buffer) - 1;
+            if(len > sizeof(rx_buffer) - 1) len = sizeof(rx_buffer) - 1;
 
-            memcpy(global_rx_buffer, event->data, len);
-            global_rx_buffer[len] = '\0';
+            memcpy(rx_buffer, event->data, len);
+            rx_buffer[len] = '\0';
+
             break;
         }
 
