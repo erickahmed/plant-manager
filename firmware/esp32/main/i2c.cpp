@@ -46,9 +46,8 @@ static void i2c_init(void) {
     i2c_mst_config.trans_queue_depth = 4;
     ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
-    // Add all vases adresses here:
-    // TODO: move this to config.h
     register_slave(0x30);
+    register_slave(0x31);
 }
 
 static void i2c_read() {} //should read from i2c and if necessary call i2c_write
